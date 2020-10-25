@@ -288,7 +288,7 @@ class ObjectEntity<T> implements IObjectEntity<T> {
 
         seq.FormatSqlText(sb);
 
-        this.sqler.execute(sb.toString(), start, limit, dr, lp.toArray());
+        this.sqler.execute(tClass, sb.toString(), start, limit, dr, lp.toArray());
 
     }
 
@@ -346,7 +346,7 @@ class ObjectEntity<T> implements IObjectEntity<T> {
 
         seq.FormatSqlText(sb);
 
-        this.sqler.execute(sb.toString(), start, limit, dr, lp.toArray());
+        this.sqler.execute(tClass, sb.toString(), start, limit, dr, lp.toArray());
 
     }
 
@@ -363,6 +363,7 @@ class ObjectEntity<T> implements IObjectEntity<T> {
         return this.sqler.executeSingle(tClass, sb.toString(), lp.toArray());
 
     }
+
     public T single(T field) {
         StringBuilder sb = new StringBuilder(this.SqlHelper.CreateSelectText(field));
         List<Object> lp = cond.FormatSqlText(sb, new ArrayList<>());

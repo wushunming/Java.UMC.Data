@@ -11,11 +11,12 @@ import java.io.InputStream;
 import java.io.Writer;
 import java.lang.reflect.Array;
 import java.net.URI;
+import java.net.URL;
 import java.util.*;
 
 public class WebClient {
     interface IWebRedirect {
-        void redirect(URI uri);
+        void redirect(URL uri);
     }
 
     class CommandKey {
@@ -50,9 +51,9 @@ public class WebClient {
     int RedirectTimes = 0;
 
 
-    URI Uri;
+    URL Uri;
     String UserHostAddress;
-    URI UrlReferrer;
+    URL UrlReferrer;
 
 
     public String UserAgent;
@@ -60,13 +61,15 @@ public class WebClient {
     public boolean isApp;
     WebSession session;
 
+    int XHRTime;
+
     public WebSession session() {
         return session;
     }
 
     public boolean isCashier;
 
-    public WebClient(WebSession session, URI uri, URI referrer, String UserAgent, String ip) {
+    public WebClient(WebSession session, URL uri, URL referrer, String UserAgent, String ip) {
 
         this.Uri = uri;
         this.UserHostAddress = ip;
@@ -76,7 +79,7 @@ public class WebClient {
 
         this.isCashier = Identity.current().isInRole(Membership.UserRole);
         if (Utility.isEmpty(UserAgent) == false)
-            this.isApp = UserAgent.indexOf("WebADNuke POS Client") > -1 || UserAgent.indexOf("UMC POS Client") > -1;
+            this.isApp = UserAgent.indexOf("UMC POS Client") > -1;
         String header = session.header();
         if (UMC.Data.Utility.isEmpty(header) == false) {
             this.InnerHeaders = (Map) UMC.Data.JSON.deserialize(header);
@@ -184,18 +187,8 @@ public class WebClient {
 
     public void Start(String start) {
         this.ClientEvent = WebEvent.NORMAL;
+        this.Send(null);
 
-        switch (start) {
-            case "true":
-
-                this.Send(null);
-
-
-                break;
-            default:
-                this.Command("Ticket", "Config", start);
-                break;
-        }
     }
 
 
@@ -251,7 +244,7 @@ public class WebClient {
             }
             Identity user = Identity.current();
             String key = String.format("%s.%s", model, cmd);
-            WebAuthType authorizationType = WebAuthType.check;
+            WebAuthType authorizationType = WebAuthType.all;
             if (WebRuntime.authKeys.containsKey(key)) {
                 authorizationType = WebRuntime.authKeys.get(key);
             } else if (WebRuntime.authKeys.containsKey(model)) {
@@ -352,26 +345,12 @@ public class WebClient {
                     return;
                 }
             default:
-                String sinleValue = "";
                 Map<String, String> hash = new Hashtable();
+                hash.putAll(QueryString);
 
-                for (String key : QueryString.keySet()) {
-                    String value = QueryString.get(key);
-                    if (UMC.Data.Utility.isEmpty(value)) {
-                        sinleValue = key;
-
-                    } else {
-                        hash.put(key, value);
-                    }
-                }
                 this.InnerHeaders.clear();
                 Map header = this.InnerHeaders;
                 header.put(model, hash);
-                if (hash.size() == 0)
-                    if (UMC.Data.Utility.isEmpty(sinleValue) == false) {
-                        header.put(cmd, sinleValue);
-                    }
-
                 this.ModelCommand(model, cmd, header);
                 this.Send();
                 break;
@@ -486,11 +465,11 @@ public class WebClient {
         if ((clientEvent & OuterDataEvent) == OuterDataEvent) {
 
             this.ClientEvent = clientEvent;
-            this.OutputHeader(response.Headers);
+            this.OutputHeader(response.headers());
             return;
         }
         if ((clientEvent & WebEvent.ASYNCDIALOG) == WebEvent.ASYNCDIALOG) {
-            this.InnerHeaders.put(WebRequest.KEY_HEADER_ARGUMENTS, Utility.isNull(response.Headers.meta(WebRequest.KEY_HEADER_ARGUMENTS), new WebMeta()));
+            this.InnerHeaders.put(WebRequest.KEY_HEADER_ARGUMENTS, Utility.isNull(response.headers().meta(WebRequest.KEY_HEADER_ARGUMENTS), new WebMeta()));
             if (UMC.Data.Utility.isEmpty(response._model) == false) {
 
                 if ((clientEvent & WebClient.Prompt) != WebClient.Prompt) {
@@ -504,13 +483,13 @@ public class WebClient {
             if (this.RedirectTimes > 10) {
                 throw new IllegalArgumentException("请求重定向超过最大次数");
             }
-            WebMeta args = response.Headers.meta(WebRequest.KEY_HEADER_ARGUMENTS);
+            WebMeta args = response.headers().meta(WebRequest.KEY_HEADER_ARGUMENTS);
 
             if (clientEvent != 0) {
 
                 this.ClientEvent |= clientEvent;
-                response.Headers.remove(WebRequest.KEY_HEADER_ARGUMENTS);
-                OutputHeader(response.Headers);
+                response.headers().remove(WebRequest.KEY_HEADER_ARGUMENTS);
+                OutputHeader(response.headers());
             }
 
             if (UMC.Data.Utility.isEmpty(response._value)) {
@@ -534,8 +513,8 @@ public class WebClient {
             }
             return;
         }
-        response.Headers.remove(WebRequest.KEY_HEADER_ARGUMENTS);
-        OutputHeader(response.Headers);
+        response.headers().remove(WebRequest.KEY_HEADER_ARGUMENTS);
+        OutputHeader(response.headers());
         this.ClientEvent = this.ClientEvent | clientEvent;
 
     }
@@ -553,7 +532,9 @@ public class WebClient {
 
                 d.WriteTo(writer, redirect);
             } else if (data instanceof URI) {
-                redirect.redirect((URI) data);
+                redirect.redirect(((URI) data).toURL());
+            } else if (data instanceof URL) {
+                redirect.redirect((URL) data);
             } else if (data instanceof WebFactory.XHR) {
                 if (ismore == false)
                     this.session.storage(this.InnerHeaders, context);

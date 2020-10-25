@@ -7,7 +7,6 @@ public class WebContext {
     WebRuntime runtime;
 
 
-
     public WebRequest request() {
         return runtime.request;
     }
@@ -35,8 +34,11 @@ public class WebContext {
 
     protected void init(WebClient client) {
     }
-
-    public static void end() {
+    /**
+     *
+     * 结束请求返回客户端
+     * */
+    public void end() {
 
         throw new WebRuntime.AbortException();
     }
@@ -67,7 +69,7 @@ public class WebContext {
                                 break;
                             }
                         }
-                        this.response().redirect(click.getModel(), click.getCommand(), new WebMeta(val), false);
+                        this.response().redirect(click.model(), click.cmd(), new WebMeta(val), false);
 
                     } else if (objValue instanceof WebMeta) {
                         WebMeta val2 = (WebMeta) objValue;
@@ -82,12 +84,11 @@ public class WebContext {
                             }
                         }
 
-                        this.response().redirect(click.getModel(), click.getCommand(), new WebMeta(val), false);
+                        this.response().redirect(click.model(), click.cmd(), new WebMeta(val), false);
 
 
                     } else {
-                        this.response().redirect(click.getModel(), click.getCommand(), value.Value, false);
-
+                        this.response().redirect(click.model(), click.cmd(), value.Value, false);
 
 
                     }
@@ -97,14 +98,14 @@ public class WebContext {
         }
         WebResponse response = this.response();
         response.ClientEvent |= WebEvent.DATAEVENT;
-        if (response.Headers.containsKey("DataEvent")) {
-            Object ts = response.Headers.map().get("DataEvent");
+        if (response.headers().containsKey("DataEvent")) {
+            Object ts = response.headers().map().get("DataEvent");
             if (ts instanceof WebMeta) {
-                response.Headers.put("DataEvent", new WebMeta[]{(WebMeta) ts, data});
+                response.headers().put("DataEvent", new WebMeta[]{(WebMeta) ts, data});
 
             } else if (ts instanceof Map) {
 
-                response.Headers.put("DataEvent", new WebMeta[]{new WebMeta((Map) ts), data});
+                response.headers().put("DataEvent", new WebMeta[]{new WebMeta((Map) ts), data});
 
             } else if (ts.getClass().isArray()) {
 
@@ -113,14 +114,14 @@ public class WebContext {
 
                 mts[mts.length - 1] = data;
 
-                response.Headers.put("DataEvent", mts);
+                response.headers().put("DataEvent", mts);
             } else {
-                response.Headers.put("DataEvent", data);
+                response.headers().put("DataEvent", data);
             }
 
         } else {
 
-            response.Headers.put("DataEvent", data);
+            response.headers().put("DataEvent", data);
         }
         if (endResponse) {
             response.ClientEvent ^= response.ClientEvent & WebEvent.NORMAL;

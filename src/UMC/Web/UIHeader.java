@@ -161,12 +161,22 @@ public class UIHeader implements UMC.Data.IJSON {
         meta.put("type", "Slider").put("data", new WebMeta().put("data", sliders));
         return this;
     }
+    public UIHeader coustom(UIView coustomCell)
+    {
+        WebMeta webm = new WebMeta();
+        if (coustomCell.getSrc() != null)
+        {
+            webm.put("style", coustomCell.style()).put("items", coustomCell.items).put("src", coustomCell.getSrc());//
+        }
+        else
+        {
+            webm.put("style", coustomCell.style()).put("items", coustomCell.items);
+        }
+        meta.put("type", "Custom").put("data", webm);
 
-
-    public UIHeader slider(UISlider... sliders) {
-        meta.put("type", "Slider").put("data", new WebMeta().put("data", sliders));
         return this;
     }
+
 
     public UIHeader profile(Profile profile, String numberFormat, String amountFormat) {
 
@@ -180,7 +190,7 @@ public class UIHeader implements UMC.Data.IJSON {
         return this;
     }
 
-    public UIHeader sliderSquare(UISlider... sliders) {
+    public UIHeader sliderSquare(Collection sliders) {
         meta.put("type", "SliderSquare").put("data", new WebMeta().put("data", sliders));
         return this;
     }

@@ -5,6 +5,7 @@ import UMC.Security.Identity;
 import UMC.Security.Membership;
 
 import java.net.URI;
+import java.net.URL;
 import java.util.Map;
 
 public class WebRequest {
@@ -13,7 +14,7 @@ public class WebRequest {
 
     protected void init(Map header, WebClient client) {
         this.client = client;
-        if (Utility.isEmpty(client.UserAgent) == false) {
+        if (!Utility.isEmpty(client.UserAgent)) {
             isWeiXin = client.UserAgent.indexOf("MicroMessenger") > 10;
         }
         isMaster = Identity.current().isInRole(Membership.AdminRole);
@@ -43,21 +44,30 @@ public class WebRequest {
 
     String _model, _cmd;
 
+    /**
+     * 请求的模块
+     *
+     * @return
+     */
     public String model() {
         return _model;
     }
 
-    /// <summary>
-    /// 提交的值
-    /// </summary>
+    /**
+     * 提交的值
+     *
+     * @return
+     */
     public String sendValue() {
         return this._Headers.get(this._cmd);
 
     }
 
-    /// <summary>
-    /// 提交的值
-    /// </summary>
+    /**
+     * 提交的值
+     *
+     * @return
+     */
     public WebMeta sendValues() {
 
         return _Headers.meta(this._model);
@@ -70,22 +80,26 @@ public class WebRequest {
 
     WebMeta Arguments = new WebMeta();
 
+    /**
+     * 当前已经得到的对话参数
+     *
+     * @return
+     */
     public WebMeta arguments() {
         return Arguments;
     }
 
-    WebMeta _Headers;// = new WebMeta();
+    WebMeta _Headers;
 
     public WebMeta headers() {
         return _Headers;
     }
 
-    WebMeta _items;//= new WebMeta();
+    WebMeta _items;
 
     public WebMeta items() {
         return _items;
     }
-
 
 
     public String cmd() {
@@ -112,11 +126,11 @@ public class WebRequest {
         return this.client.isApp;
     }
 
-    public URI uri() {
+    public URL uri() {
         return client.Uri;
     }
 
-    public URI referrer() {
+    public URL referrer() {
         return client.UrlReferrer;
     }
 

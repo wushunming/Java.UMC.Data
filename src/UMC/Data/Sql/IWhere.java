@@ -2,6 +2,10 @@ package UMC.Data.Sql;
 
 public interface IWhere<T> {
 
+    /** 获取设置参数值
+     * @param name 参数名
+     * @return
+     */
     Object get(String name);
     /**
      * 移除查询参数

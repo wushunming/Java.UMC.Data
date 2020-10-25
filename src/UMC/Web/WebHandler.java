@@ -92,7 +92,7 @@ public abstract class WebHandler {
         WebResponse response = _context.response();
         response.ClientEvent |= WebEvent.PROMPT;
 
-        response.Headers.put("Prompt", new WebMeta().put("Text", text));
+        response.headers().put("Prompt", new WebMeta().put("Text", text));
         if (endResponse) {
             _context.end();
         }
@@ -107,7 +107,7 @@ public abstract class WebHandler {
         WebMeta prompt = new WebMeta();
         prompt.put("Text", text).put("Title", title).put("Type", "Prompt");// = text;
 
-        response.Headers.put("AsyncDialog", prompt);
+        response.headers().put("AsyncDialog", prompt);
         if (endResponse) {
             _context.end();
         }

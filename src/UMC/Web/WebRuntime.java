@@ -8,6 +8,22 @@ import java.util.*;
 import UMC.Data.*;
 
 class WebRuntime {
+    static {
+        System.out.println("                                                                     ");
+        System.out.println("                                                                     ");
+        System.out.println("    $$         $$          $$$$$$$$   $$$$$$$            $$$$$$$$    ");
+        System.out.println("    $$         $$         $$      $$$$      $$         $$            ");
+        System.out.println("    $$         $$        $$        $$        $$       $$             ");
+        System.out.println("    $$         $$        $$        $$        $$       $$             ");
+        System.out.println("    $$         $$        $$        $$        $$       $$             ");
+        System.out.println("    $$         $$        $$        $$        $$       $$             ");
+        System.out.println("    $$         $$        $$        $$        $$       $$             ");
+        System.out.println("     $$       $$         $$        $$        $$        $$            ");
+        System.out.println("       $$$$$$$           $$        $$        $$          $$$$$$$$    ");
+        System.out.println("                                                                     ");
+        System.out.println("                                                                     ");
+
+    }
     public static class AbortException extends RuntimeException {
 
     }
@@ -39,11 +55,11 @@ class WebRuntime {
         @Override
         public WebActivity firstActivity() {
 
-            WebRequest webRequest = this.context().request();//.Request;
-            Map<String, Class> dic = activities.get(webRequest.model());//[webRequest];
+            WebRequest webRequest = this.context().request();
+            Map<String, Class> dic = activities.get(webRequest.model());
             if (dic.containsKey(webRequest.cmd())) {
                 try {
-                    Constructor constructor = dic.get(webRequest.cmd()).getDeclaredConstructor();//[0];
+                    Constructor constructor = dic.get(webRequest.cmd()).getDeclaredConstructor();
                     constructor.setAccessible(true);
                     return (WebActivity) constructor.newInstance();
                 } catch (Throwable e) {
@@ -86,9 +102,9 @@ class WebRuntime {
             if (flows.containsKey(mode)) {
                 try {
 
-                    Constructor constructor = flows.get(mode).get(index).getDeclaredConstructor();//[0];
+                    Constructor constructor = flows.get(mode).get(index).Type.getDeclaredConstructor();//[0];
                     constructor.setAccessible(true);
-                    return (WebFlow) constructor.newInstance();//[mode][index]
+                    return (WebFlow) constructor.newInstance();
                 } catch (Throwable e) {
                     throw new RuntimeException(e);
                 }
@@ -166,11 +182,21 @@ class WebRuntime {
 
     }
 
+    public static class WeightClass {
+        public int Weight;
+        public Class Type;
+
+        public WeightClass(Class type, int weight) {
+            Type = type;
+            this.Weight = weight;
+        }
+    }
+
     static Map<String, WebAuthType> authKeys = new HashMap<>();
-    static List<Class> facClas = new LinkedList<>();
+    static List<WeightClass> facClas = new LinkedList<>();
     static Map<String, Map<String, Class>> activities = new HashMap<>();
-    static Map<String, List<Class>> flows = new HashMap<>();
-//    public static List<Class> initializers = new LinkedList<>();
+    static Map<String, List<WeightClass>> flows = new HashMap<>();
+    static Map<String, Integer> weightKeys = new HashMap<>();
 
     public static void register(Class cl) {
 
@@ -178,15 +204,24 @@ class WebRuntime {
             Annotation[] annotations = cl.getAnnotations();
             for (Annotation annotation : annotations) {
                 if (annotation instanceof Mapping) {
-                    Mapping mapping = (Mapping) annotation;//cl.getAnnotation(Mapping.class);
+                    Mapping mapping = (Mapping) annotation;
                     if (!Utility.isEmpty(mapping.model()) && !Utility.isEmpty(mapping.cmd())) {
 
                         if (WebActivity.class.isAssignableFrom(cl)) {
                             if (!activities.containsKey(mapping.model())) {
                                 activities.put(mapping.model(), new HashMap<>());
                             }
+                            String key = String.format("%s.%s", mapping.model(), mapping.cmd());
+                            if (weightKeys.containsKey(key)) {
+                                Integer weight = weightKeys.get(key);
+                                if (weight > mapping.weight()) {
+                                    continue;
+                                }
+                            }
+                            weightKeys.put(key, mapping.weight());
+                            authKeys.put(key, mapping.auth());
+
                             activities.get(mapping.model()).put(mapping.cmd(), cl);
-                            authKeys.put(String.format("%s.%s", mapping.model(), mapping.cmd()), mapping.auth());
 
 
                         }
@@ -196,22 +231,16 @@ class WebRuntime {
                             if (!flows.containsKey(mapping.model())) {
                                 flows.put(mapping.model(), new LinkedList<>());
                             }
-                            List<Class> list = flows.get(mapping.model());
-                            if (!list.contains(cl)) {
-                                list.add(cl);
-
+                            List<WeightClass> list = flows.get(mapping.model());
+                            if (Utility.exists(list, w -> w.Type.equals(cl)) == false) {
+                                list.add(new WeightClass(cl, mapping.weight()));
                                 authKeys.put(mapping.model(), mapping.auth());
                             }
                         }
                     } else if (IWebFactory.class.isAssignableFrom(cl)) {
 
-                        if (!facClas.contains(cl)) {
-                            if (WebFactory.class.isAssignableFrom(cl)) {
-
-                                facClas.add(0, cl);
-                            } else {
-                                facClas.add(cl);
-                            }
+                        if (Utility.exists(facClas, w -> w.Type.equals(cl)) == false) {
+                            facClas.add(new WeightClass(cl, mapping.weight()));
                         }
                     } else if (UMC.Data.Sql.Initializer.class.isAssignableFrom(cl)) {
                         if (UMC.Data.Sql.Initializer.__initializers.indexOf(cl) == -1)
@@ -230,8 +259,8 @@ class WebRuntime {
             Class cl = null;
             try {
                 cl = Class.forName(cls);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
+            } catch (Throwable e) {
+                // e.printStackTrace();
                 continue;
             }
             register(cl);
@@ -249,22 +278,34 @@ class WebRuntime {
         context.init(this.client);
 
         List<IWebFactory> factorys = new LinkedList<>();
+        factorys.add(new MappingActivityFactory());
+        factorys.addAll(Arrays.asList(getFactory(request.model())));
+        int webIndex = 0;
 
-        for (Class cls : facClas) {
+        for (WeightClass cls : facClas) {
             try {
 
-                Constructor constructor = cls.getDeclaredConstructor();//[0];
+                Constructor constructor = cls.Type.getDeclaredConstructor();//[0];
                 constructor.setAccessible(true);
                 IWebFactory webFactory = (IWebFactory) constructor.newInstance();
                 webFactory.init(context);
-                factorys.add(webFactory);
+                if (webFactory instanceof WebFactory) {
+                    factorys.add(0, webFactory);
+                    webIndex++;
+                } else {
+                    factorys.add(webFactory);
+                }
+
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
         }
 
-        factorys.addAll(Arrays.asList(getFactory(request.model())));
-        factorys.add(new MappingActivityFactory());
+        WebFactory webf = new WebFactory();
+        webf.init(context);
+
+        factorys.add(webIndex, webf);
+
         for (int Index = 0; Index < factorys.size(); Index++) {
 
             IWebFactory flowFactory = factorys.get(Index);

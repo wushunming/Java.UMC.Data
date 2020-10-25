@@ -8,7 +8,7 @@ import UMC.Web.UICell;
 
 import java.io.Writer;
 
-public class UICommentCell extends UICell {
+public class UIComment extends UICell {
 
     @Override
     public Object data() {
@@ -48,47 +48,54 @@ public class UICommentCell extends UICell {
 
     private WebMeta data;
 
-    public UICommentCell(String src) {
-        this.data = new WebMeta().put("src", src);
+    /**
+     * @param headerSrc 头像地址
+     */
+    public UIComment(String headerSrc) {
+        this.data = new WebMeta().put("src", headerSrc);
     }
 
-    public UICommentCell name(String name, String value) {
+    public UIComment name(String name, String value) {
 
         this.data.put(name, value);
         return this;
     }
 
-    public UICommentCell ame(String name) {
+    public UIComment name(String name) {
         this.format("name", name);
         return this;
     }
 
-    public UICommentCell time(String title) {
+    public UIComment time(String title) {
         this.format("time", title);
         return this;
     }
 
-    public UICommentCell content(String content) {
+    public UIComment content(String content) {
         this.format("content", content);
         return this;
     }
 
-    public UICommentCell images(Image... images) {
+    public UIComment images(Image... images) {
         this.data.put("image", images);
         return this;
 
     }
 
+    public UIComment tag(UIEventText eventText) {
+        this.data.put("tag", eventText);
+        return this;
+    }
+
     public String Id;
 
-    public UICommentCell replys(Reply... replys) {
-        //foreach(var re in replys)
+    public UIComment replys(Reply... replys) {
         this.data.put("replys", replys);
         return this;
 
     }
 
-    public UICommentCell button(UIEventText... btns) {
+    public UIComment button(UIEventText... btns) {
         this.data.put("buttons", btns);
         return this;
 

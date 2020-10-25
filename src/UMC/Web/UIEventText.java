@@ -14,13 +14,17 @@ public class UIEventText implements UMC.Data.IJSON {
     public UIEventText() {
     }
 
+    private UIStyle _style = new UIStyle();
+
     public UIEventText style(UIStyle style) {
-        meta.put("style", style);
+        _style.copy(style);
         return this;
 
     }
 
-    /** 在UISection的UIFooter，宽度flex占比
+    /**
+     * 在UISection的UIFooter，宽度flex占比
+     *
      * @param flex
      * @return
      */
@@ -35,7 +39,9 @@ public class UIEventText implements UMC.Data.IJSON {
         meta.put("format", "{text}");
     }
 
-    /**面对Icons组件的图片图标
+    /**
+     * 面对Icons组件的图片图标
+     *
      * @param src
      * @return
      */
@@ -45,27 +51,31 @@ public class UIEventText implements UMC.Data.IJSON {
 
     }
 
-    /**图标
-     * @param icon 图标
+    /**
+     * 图标
+     *
+     * @param icon  图标
      * @param color
      * @return
      */
     public UIEventText icon(char icon, String color) {
         meta.put("icon", icon);
-        meta.put("color", color);
+        _style.name("icon").name("color", color);
         return this;
 
     }
+
     public UIEventText icon(String icon, String color) {
         meta.put("icon", icon);
-        meta.put("color", color);
+        _style.name("icon").name("color", color);
         return this;
 
     }
+
     public UIEventText icon(char icon, int color) {
         meta.put("icon", icon);
+        _style.name("icon").color(color);
 
-        meta.put("color", UIStyle.intParseColor(color));
 
         return this;
 
@@ -107,9 +117,16 @@ public class UIEventText implements UMC.Data.IJSON {
         return this;
     }
 
+    public UIEventText badge(String badge) {
+        meta.put("badge", badge);
+        return this;
+    }
+
     @Override
     public void write(Writer writer) {
-
+        if (_style.length() > 0) {
+            meta.put("style", _style);
+        }
         UMC.Data.JSON.serialize(this.meta, writer);
     }
 

@@ -22,7 +22,7 @@ public class AccessToken {
     }
 
     public String Username;
-    public UUID SId;
+    public UUID UId;
     public UUID Id;
     public String Roles;
     public Long ActiveTime;
@@ -86,7 +86,7 @@ public class AccessToken {
         auth.Timeout = timeout;
         auth.Id = tmpId;
         auth.Username = Id.name();
-        auth.SId = Id.id();
+        auth.UId = Id.id();
         auth.ActiveTime = new Date().getTime() / 1000;
         auth.Roles = null;
 
@@ -135,20 +135,20 @@ public class AccessToken {
         }
         switch (this.Username) {
             case "?":
-                return UMC.Security.Identity.create(this.SId, "?", Alias);
+                return UMC.Security.Identity.create(this.UId, "?", Alias);
             case "#":
-                if (this.SId != null) {
-                    return UMC.Security.Identity.create(this.SId, "#", Alias);
+                if (this.UId != null) {
+                    return UMC.Security.Identity.create(this.UId, "#", Alias);
                 } else {
                     return UMC.Security.Identity.create(this.Id, "?", Alias);
                 }
             default:
-                if (this.SId != null) {
+                if (this.UId != null) {
                     if (Utility.isEmpty(this.Roles)) {
-                        return UMC.Security.Identity.create(this.SId, this.Username, Alias);
+                        return UMC.Security.Identity.create(this.UId, this.Username, Alias);
 
                     } else {
-                        return UMC.Security.Identity.create(this.SId, this.Username
+                        return UMC.Security.Identity.create(this.UId, this.Username
                                 , Alias, this.Roles.split(","));
                     }
                 } else {

@@ -2,6 +2,7 @@ package UMC.Data.Sql;
 
 import UMC.Data.Database;
 import UMC.Data.JSON;
+import UMC.Data.Utility;
 
 import java.io.StringWriter;
 import java.lang.reflect.Constructor;
@@ -397,6 +398,9 @@ class Sqler implements ISqler {
                 if (isAuto)
                     connection.setAutoCommit(false);
 
+                PreparedStatement pstmt = null;
+                String preSQL = "";
+
                 for (Script sc : scripts) {
                     ArrayList cmd = new ArrayList();
                     String sql = null;
@@ -416,15 +420,32 @@ class Sqler implements ISqler {
                             sql = SqlParamer.Format(provider, autoPfx, cmd, sc.text(), args);
                             break;
                     }
+                    if (Utility.isEmpty(preSQL) || pstmt == null) {
+                        pstmt = connection.prepareStatement(sql);
+                        appendParamers(pstmt, cmd);
+                        preSQL = sql;
+                        pstmt.addBatch();
+                    } else if (sql.equals(preSQL)) {
 
-                    PreparedStatement pstmt = connection.prepareStatement(sql);
+                        appendParamers(pstmt, cmd);
+                        pstmt.addBatch();
 
-                    appendParamers(pstmt, cmd);
-                    pstmt.execute();
+                    } else {
+                        pstmt.executeBatch();
 
-                    pstmt.close();
+                        preSQL = sql;
+                        pstmt = connection.prepareStatement(sql);
+                        appendParamers(pstmt, cmd);
+                        pstmt.addBatch();
+                    }
+
 
                 }
+                if (!Utility.isEmpty(preSQL) && pstmt != null) {
+                    pstmt.executeBatch();
+                    pstmt.close();
+                }
+                //pstmt.c
                 if (isAuto)
                     connection.commit();
             } catch (SQLException e) {
@@ -474,10 +495,10 @@ class Sqler implements ISqler {
     }
 
     @Override
-    public <T> void execute(String sqlText, int start, int limit, IDataReader<T> reader, Object... paramers) {
-        ParameterizedType ctype = (ParameterizedType) reader.getClass().getGenericSuperclass();
+    public <T> void execute(Class<T> tClass, String sqlText, int start, int limit, IDataReader<T> reader, Object... paramers) {
+//        ParameterizedType ctype = (ParameterizedType) reader.getClass().getGenericSuperclass();
 
-        Class tClass = (Class) ctype.getActualTypeArguments()[0];
+//        Class tClass = (Class) ctype.getActualTypeArguments()[0];
 
         sqlText = this.provider.paginationText(start, limit, sqlText);
         Progress((ResultSet resultSet) -> {

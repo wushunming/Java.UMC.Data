@@ -50,6 +50,10 @@ public class UIDataSourceBuilder {
     }
 
 
+    /** 采用列选项卡模式展示
+     * @param context
+     * @param dataSources
+     */
     public void binderCells(WebContext context, UIDataSource... dataSources) {
 
         context.send(new UMC.Web.WebMeta(_data.map())

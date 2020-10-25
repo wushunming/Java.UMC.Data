@@ -17,20 +17,14 @@ public class UITitle implements UMC.Data.IJSON {
 
     }
 
-    public String title()
-
-    {
-
+    public String title() {
         return meta.get("text");
     }
 
     public UITitle title(String value)
-
     {
-
         meta.put("text", value);
         return this;
-
     }
 
     public UITitle Float() {
@@ -41,7 +35,6 @@ public class UITitle implements UMC.Data.IJSON {
     public UITitle left(char icon, UIClick click) {
         this.left(new UIEventText().icon(icon).click(click));
         return this;
-
     }
 
     public UITitle left(UIEventText text) {
@@ -69,10 +62,9 @@ public class UITitle implements UMC.Data.IJSON {
         return this;
     }
 
-    public static UITitle TabTitle() {
-        UITitle t = new UITitle();
-        t.meta.put("type", "Tab");
-        return t;
+    public UITitle(boolean istab) {
+        if (istab)
+            this.meta.put("type", "Tab");
     }
 
     WebMeta meta = new WebMeta();

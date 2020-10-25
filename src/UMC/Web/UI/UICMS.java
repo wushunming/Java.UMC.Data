@@ -12,72 +12,120 @@ public class UICMS extends UICell {
         return data;
     }
 
-    String Type;
+    private String Type;
 
     @Override
     public String type() {
         return Type;
     }
 
-    WebMeta data;
+    private WebMeta data;
 
-    private UICMS(WebMeta data) {
-        this.data = data;
-    }
+    /**
+     * 创建单图资讯组件
+     *
+     * @param click
+     * @param data
+     */
+    public UICMS(UIClick click, WebMeta data) {
 
-    public static UICMS createMax(UIClick click, WebMeta data) {
-        UICMS t = new UICMS(data);
-        t.data.put("click", click);
-        t.Type = "CMSMax";
-        return t;
-
-    }
-
-    public static UICMS createMax(UIClick click, WebMeta data, String src) {
-        UICMS t = new UICMS(data);
-        t.data.put("src", src);
-        t.data.put("click", click);
-        t.Type = "CMSMax";
-        return t;
-    }
-
-    public static UICMS createOne(UIClick click, WebMeta data, String src) {
-        UICMS t = new UICMS(data);
-        t.data.put("src", src);
-        t.data.put("click", click);
-        t.Type = "CMSOne";
-        return t;
+        this.data = data.put("click", click);
+        this.Type = "CMSMax";
 
     }
 
-    public static UICMS createThree(UIClick click, WebMeta data, String... src) {
 
-        UICMS t = new UICMS(data);
-        t.data.put("images", src);
-        t.data.put("click", click);
-        t.Type = "CMSThree";
-        return t;
+    /**
+     * 创建单图或者大图资讯组件
+     *
+     * @param click
+     * @param data
+     * @param src
+     * @param max   是否是大图
+     */
+    public UICMS(UIClick click, WebMeta data, String src, boolean max) {
+        this.data = data.put("click", click).put("src", src);
+        this.Type = max ? "CMSMax" : "CMSOne";
+
+    }
+
+    /**
+     * 创建大图资讯组件，并支持视频
+     *
+     * @param data
+     * @param click
+     * @param videoSrc 视频Url
+     * @param src      视频预览图片
+     */
+    public UICMS(WebMeta data, UIClick click, String videoSrc, String src) {
+        this.data = data.put("click", click).put("src", src).put("video-src", videoSrc);
+        this.Type = "CMSMax";
+    }
+
+
+    /**
+     * 创建视频资讯组件
+     *
+     * @param data
+     * @param videoSrc 视频Url
+     * @param src      视频预览图片
+     */
+    public UICMS(WebMeta data, String videoSrc, String src) {
+        this.data = data.put("src", src).put("video-src", videoSrc);
+        this.Type = "CMSMax";
+    }
+
+    /**
+     * 创建单图资讯组件
+     *
+     * @param click
+     * @param data
+     * @param src
+     */
+    public UICMS(UIClick click, WebMeta data, String src) {
+
+        this.data = data.put("click", click).put("src", src);
+        this.Type = "CMSOne";
+
+
+    }
+
+    /**
+     * 创建三张图的资讯组件
+     *
+     * @param click
+     * @param data
+     * @param src1
+     * @param src2
+     * @param src3
+     */
+    public UICMS(UIClick click, WebMeta data, String src1, String src2, String src3) {
+
+        this.data = data.put("click", click).put("images", new String[]{src1, src2, src3});
+        this.Type = "CMSThree";
+
+
     }
 
     public UICMS desc(String desc) {
-        data.put("desc", desc);
+        this.format("desc", desc);
         return this;
     }
 
     public UICMS title(String title) {
-        this.data.put("title", title);
+        this.format("title", title);
         return this;
 
     }
 
     public UICMS right(String right) {
-        data.put("right", right);
+        this.format("right", right);
         return this;
 
     }
 
     public UICMS left(String left) {
-        data.put("left", left);
+        this.format("left", left);
         return this;
 
     }

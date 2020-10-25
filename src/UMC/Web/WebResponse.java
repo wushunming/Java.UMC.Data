@@ -5,7 +5,7 @@ import UMC.Data.JSON;
 
 public class WebResponse {
     public int ClientEvent;
-    WebMeta Headers = new WebMeta();
+    private WebMeta Headers = new WebMeta();
 
     public WebMeta headers() {
         return Headers;

@@ -5,63 +5,53 @@ public class SqlDbProvider extends DbProvider {
 
         try {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.out.println("not sqlserver jdbc.Driver");
+//            e.printStackTrace();
         }
     }
 
 
-    class SqlBuilder extends DbBuilder
-    {
-        public  String AddColumn(String name, String field, String type)
-        {
+    class SqlBuilder extends DbBuilder {
+        public String AddColumn(String name, String field, String type) {
             return String.format("ALTER TABLE %s ADD %s %s", name, field, type);
         }
 
-        public  String Boolean()
-        {
+        public String Boolean() {
             return "BIT";
         }
 
-        public  String Date()
-        {
+        public String Date() {
             return "DATETIME";
         }
 
-        public  String DropColumn(String name, String field)
-        {
+        public String DropColumn(String name, String field) {
             return String.format("ALTER TABLE %s DROP COLUMN %s", name, field);
         }
 
-        public  String Float()
-        {
+        public String Float() {
             return "FLOAT";
         }
 
-        public  String Guid()
-        {
+        public String Guid() {
             return "UNIQUEIDENTIFIER";
         }
 
-        public  String Integer()
-        {
+        public String Integer() {
             return "INTEGER";
         }
 
-        public  String Number()
-        {
+        public String Number() {
             return "DECIMAL(16,2)";
         }
 
-        public  String PrimaryKey(String name,  String... fields)
-        {
-            StringBuilder sb = new  StringBuilder();
+        public String PrimaryKey(String name, String... fields) {
+            StringBuilder sb = new StringBuilder();
             sb.append("ALTER TABLE ");
             sb.append(name.toUpperCase());
             sb.append(" ADD PRIMARY KEY (");// name);// id);")
-            for (String s : fields)
-            {
-                sb.append( s);
+            for (String s : fields) {
+                sb.append(s);
                 sb.append(',');
 
             }
@@ -71,18 +61,28 @@ public class SqlDbProvider extends DbProvider {
 
         }
 
-        public  String String()
-        {
+        public String String() {
             return "NVARCHAR(255)";
         }
 
-        public  String Text()
-        {
+        public String Text() {
             return "NVARCHAR(MAX)";
         }
-        public  String Schema(String Prefixion)
-        {
+
+        public String Schema(String Prefixion) {
             return String.format("CREATE SCHEMA %s AUTHORIZATION [dbo]", Prefixion);
+        }
+
+        public Boolean Check(String name, String field, ISqler sqler) {
+
+            int m = (int) (sqler.executeScalar("select  count(*)  from sys.columns where object_id=object_id({0}) AND name={1}", name, field));
+            return m > 0;
+        }
+
+        public Boolean Check(String name, ISqler sqler) {
+
+            int m = (int) (sqler.executeScalar("select  count(*)  from sys.objects where object_id=object_id({0})", name));
+            return m > 0;
         }
     }
 

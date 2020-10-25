@@ -3,6 +3,7 @@ package UMC.Data;
 import UMC.Data.Sql.IOperator;
 import UMC.Web.WebMeta;
 import UMC.Web.WebServlet;
+import com.sun.org.apache.xml.internal.utils.StringComparable;
 import jdk.nashorn.internal.runtime.regexp.joni.Regex;
 import sun.misc.BASE64Decoder;
 import sun.misc.BASE64Encoder;
@@ -14,6 +15,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.math.BigInteger;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -24,11 +26,23 @@ import java.util.function.Predicate;
 import java.util.regex.Pattern;
 
 public class Utility {
+    public static String ROOTPATH;
+
 
     public final static UUID uuidEmpty;
 
     static {
         uuidEmpty = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
+        File file = new File(Utility.class.getProtectionDomain().getCodeSource().getLocation().getFile());
+        File parent = file.getParentFile();
+        if (parent.getPath().endsWith(File.separator + "lib") && file.getPath().endsWith(".jar")) {
+            parent = parent.getParentFile();
+        }
+
+        ROOTPATH = parent.getPath() + File.separator;// "/";// path.substring(0, path.lastIndexOf(File.separator) - (path.endsWith("classes/") ? 7 : 3));
+        System.out.print("DataPath:");
+        System.out.println(ROOTPATH);
     }
 
     public static Map<String, Object> fieldMap(Object obj) {
@@ -53,14 +67,70 @@ public class Utility {
         return dic;
     }
 
+    public static int timeSpan() {
+        return (int) System.currentTimeMillis() / 1000;
+    }
+
+    private static String replaceQuote(String csvValue) {
+        if (isEmpty(csvValue)) {
+            return null;
+        }
+        String rtnStr = csvValue;
+        switch (csvValue.charAt(0)) {
+            case '"':
+                switch (rtnStr.length()) {
+                    case 1:
+                        return "";
+                    case 2:
+                        return "";
+                    default:
+                        rtnStr = rtnStr.substring(1, rtnStr.length() - 1);
+                        break;
+                }
+                break;
+
+        }
+
+        rtnStr = rtnStr.replace("\"\"", "\"");
+
+        return rtnStr;
+
+    }
+
     /**
-     * 获取注册的类实例需要授权才能访问的类型
+     * 解析一行CSV数据
      *
      * @return
      */
-    public static List<WebMeta> auths() {
-        return WebServlet.auths();
+    public static String[] fromCsvLine(String csv) {
+        List<String> csvLiAsc = new LinkedList<>();
+        if (!isEmpty(csv)) {
+            int lastIndex = 0;
+            int quotCount = 0;
+
+            int l = csv.length();
+            for (int i = 0; i < l; i++) {
+                if (csv.charAt(i) == '"') {
+                    if (i > 0) {
+                        if ((csv.charAt(i - 1) != '\\')) {
+                            quotCount++;
+                        }
+
+                    } else
+                        quotCount++;
+                } else if (csv.charAt(i) == ',' && quotCount % 2 == 0) {
+                    csvLiAsc.add(replaceQuote(csv.substring(lastIndex, i)));
+                    lastIndex = i + 1;
+                }
+                if (i == l - 1 && lastIndex < l) {
+                    csvLiAsc.add(replaceQuote(csv.substring(lastIndex)));
+                }
+            }
+        }
+
+        return csvLiAsc.toArray(new String[0]);
     }
+
 
     /**
      * 获取注册的类实例
@@ -118,6 +188,18 @@ public class Utility {
         return null;
     }
 
+    public static String getRoot(URL uri) {
+
+        String root = uri.getPath().substring(1);
+        int i = root.indexOf('/');
+        if (i > -1) {
+            String croot = root.substring(0, i);
+
+            return croot;
+
+        }
+        return "UMC";
+    }
 
     public static String trim(String str, Character... cs) {
         StringBuilder stringBuilder = new StringBuilder();
@@ -135,15 +217,33 @@ public class Utility {
 
     }
 
+    public static String sign(Map query, String appKey) {
+        StringBuilder buff = new StringBuilder();
+
+
+        String[] arr2 = (String[]) query.keySet().toArray(new String[0]);
+
+        Arrays.sort(arr2);
+
+
+        for (String pair : arr2) {
+            buff.append(pair);
+            buff.append("=");
+            buff.append(query.get(pair));
+            buff.append("&");
+        }
+        buff.append("key=");
+        buff.append(appKey);
+
+        return md5(buff.toString());
+    }
+
     public static String mapPath(String xpath) {
-//        ClassLoader.getSystemClassLoader().getResource("lib")
 
-        String path = Utility.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-
-        path = path.substring(0, path.lastIndexOf(File.separator) - (path.endsWith("classes/") ? 7 : 3));
-        return path + trim(xpath, '~', '/').replace('\\', '/').replace("/", File.separator);
+        return ROOTPATH + trim(xpath, '~', '/').replace('\\', '/').replace("/", File.separator);
 
     }
+
 
     public static String reader(String file) {
         File f = new File(file);
@@ -237,6 +337,7 @@ public class Utility {
             String[] sd = sdate[1].split(":|\\.");
             switch (sd.length) {
                 case 1:
+                    //  Calendar
                     return new Date(year, month, day, Integer.parseInt(sd[0]), 0);
                 case 2:
                     return new Date(year, month, day, Integer.parseInt(sd[0]), Integer.parseInt(sd[1]));
@@ -361,6 +462,27 @@ public class Utility {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void copy(InputStream input, String filename) {
+        File file = new File(filename);
+        if (file.exists() == false) {
+
+            if (file.getParentFile().exists() == false) {
+                file.getParentFile().mkdirs();
+            }
+
+        }
+        FileOutputStream outputStream = null;
+        try {
+            outputStream = new FileOutputStream(file);
+
+            copy(input, outputStream);
+            outputStream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     private static byte[] uuidByte(UUID uuid) {
@@ -775,6 +897,14 @@ public class Utility {
 
     }
 
+    public static boolean IsApp(String UserAgent) {
+
+        if (isEmpty(UserAgent) == false) {
+            return UserAgent.indexOf("UMC Client") > -1;
+        }
+        return false;
+    }
+
     public static boolean IsPhone(String phone) {
         if (isEmpty(phone)) {
             return false;
@@ -1004,12 +1134,12 @@ public class Utility {
 
     public static void writer(String file, String content, boolean append) {
         File f = new File(file);
+        if (f.getParentFile().exists() == false) {
+            f.getParentFile().mkdirs();
+        }
+
 
         try {
-            if (!f.exists()) {
-                f.createNewFile();
-
-            }
 
             FileWriter fileWritter = new FileWriter(f, append);
 

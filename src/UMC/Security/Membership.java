@@ -463,8 +463,8 @@ public class Membership extends UMC.Data.DataProvider {
 
         switch (token.Username) {
             case "?":
-                if (token.SId != null) {
-                    sesion.commit(token.SId);
+                if (token.UId != null) {
+                    sesion.commit(token.UId);
                 } else {
                     sesion.commit(token.Id);
                 }

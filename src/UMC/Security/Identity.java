@@ -55,7 +55,10 @@ public abstract class Identity {
             return this._Name;
         }
 
-
+        @Override
+        public String[] roles() {
+            return _rolres;//new String[0];
+        }
     }
 
 
@@ -97,6 +100,8 @@ public abstract class Identity {
     public abstract String alias();
 
     public abstract boolean isInRole(String role);
+
+    public abstract String[] roles();
 
 
     public static Identity create(String name) {

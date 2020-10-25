@@ -41,11 +41,11 @@ public class UIStyle implements UMC.Data.IJSON {
 
     }
 
-    /// <summary>
-/// 文本对齐
-/// </summary>
-/// <param name="c">0为left,2为center,3为right</param>
-/// <returns></returns>
+
+    /** 文本对齐
+     * @param c 0为left,2为center,3为right<
+     * @return
+     */
     public UIStyle align(int c) {
         switch (c % 3) {
             default:
@@ -124,9 +124,6 @@ public class UIStyle implements UMC.Data.IJSON {
                     ids.add(Utility.parse(ps[1], 0));
                     ids.add(Utility.parse(ps[2], 0));
                     ids.add(Utility.parse(ps[3], 0));
-//                    ids.Add(Data.Utility.IntParse(ps[1], 0));
-//                    ids.Add(Data.Utility.IntParse(ps[2], 0));
-//                    ids.Add(Data.Utility.IntParse(ps[3], 0));
                     break;
             }
             int[] pads = new int[ids.size()];
@@ -170,6 +167,10 @@ public class UIStyle implements UMC.Data.IJSON {
     }
 
     public UIStyle name(String key) {
+        Object object = meta.map().get(key);
+        if (object instanceof UIStyle) {
+            return (UIStyle) object;
+        }
         UIStyle style = new UIStyle();
         meta.put(key, style);
         return style;
@@ -177,7 +178,8 @@ public class UIStyle implements UMC.Data.IJSON {
     }
 
     public UIStyle bgColor() {
-        return bgColor(0xef4f4f);
+        meta.put("background-color", "highlighted");
+        return this;
     }
 
     public UIStyle bgColor(int color) {
@@ -206,6 +208,51 @@ public class UIStyle implements UMC.Data.IJSON {
         return this;
     }
 
+    /// <summary>
+    /// 反转动画
+    /// </summary>
+    /// <param name="duration"></param>
+    /// <returns></returns>
+    public UIStyle reverse(float duration) {
+        meta.put("animation-name", "reverse").put("animation-duration", duration);
+        return this;
+    }
+
+    /// <summary>
+    /// 默认反转动画
+    /// </summary>
+    public UIStyle reverse() {
+        meta.put("animation-name", "reverse");
+        return this;
+    }
+
+    public UIStyle rotate(float duration) {
+        meta.put("animation-name", "rotate").put("animation-duration", duration);
+        return this;
+    }
+
+    public UIStyle rotate() {
+        meta.put("animation-name", "rotate");
+        return this;
+    }
+
+    public UIStyle scale(float duration, float form, float to) {
+        meta.put("animation-name", "rotate").put("animation-duration", duration).put("animation-form", form).put("animation-to", to);
+        return this;
+    }
+
+    public UIStyle scale() {
+        meta.put("animation-name", "scale");
+        return this;
+    }
+
+    public UIStyle color() {
+
+        meta.put("color", "highlighted");
+
+        return this;
+    }
+
     public UIStyle color(int color) {
 
         meta.put("color", intParseColor(color));
@@ -220,6 +267,21 @@ public class UIStyle implements UMC.Data.IJSON {
         return this;
     }
 
+
+    public UIStyle height(String width) {
+        meta.put("height", width);
+        return this;
+    }
+
+    public UIStyle width(int width) {
+        meta.put("width", width);
+        return this;
+    }
+
+    public UIStyle width(String width) {
+        meta.put("width", width);
+        return this;
+    }
 
     public UIStyle underLine() {
 
@@ -242,6 +304,10 @@ public class UIStyle implements UMC.Data.IJSON {
         meta.put("click", click);
         return this;
 
+    }
+
+    public int length() {
+        return meta.size();
     }
 
     @Override

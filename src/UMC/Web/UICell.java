@@ -1,7 +1,12 @@
 package UMC.Web;
 
 
-public abstract class UICell {
+import UMC.Data.Utility;
+
+import java.io.IOException;
+import java.io.Writer;
+
+public abstract class UICell implements UMC.Data.IJSON {
 
     private static class UICeller extends UICell {
         String _Type;
@@ -47,6 +52,46 @@ public abstract class UICell {
 
     public UIStyle style() {
         return _style;
+
+    }
+
+    @Override
+    public void write(Writer writer) {
+
+        if (Utility.isEmpty(this.type())) {
+            throw new RuntimeException("Cell Type is empty");
+        }
+        try {
+            writer.write("{\"_CellName\":");
+
+            UMC.Data.JSON.serialize(this.type(), writer);
+            writer.write(",");
+            UMC.Data.JSON.serialize("value", writer);
+            writer.write(":");
+            UMC.Data.JSON.serialize(this.data(), writer);
+            if (this._format.size() > 0) {
+
+                writer.write(",");
+                UMC.Data.JSON.serialize("format", writer);
+                writer.write(":");
+                UMC.Data.JSON.serialize(_format, writer);
+            }
+            if (this._style.length() > 0) {
+
+                writer.write(",");
+                UMC.Data.JSON.serialize("style", writer);
+                writer.write(":");
+                UMC.Data.JSON.serialize(_style, writer);
+            }
+
+            writer.write("}");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void read(String key, Object value) {
 
     }
 }

@@ -67,13 +67,13 @@ public abstract class UIDialog {
         WebMeta p = new WebMeta();
         p.put("model", model).put("text", text)
                 .put("cmd", cmd);
-        if (Utility.isEmpty(value) == false) {
+        if (!Utility.isEmpty(value)) {
             p.put("send", value);
         }
         return p;
     }
 
-    public static WebMeta createMenu(String text, String model, String cmd, WebMeta param) {
+    public WebMeta createMenu(String text, String model, String cmd, WebMeta param) {
 
         WebMeta p = new WebMeta();
         p.put("model", model).put("text", text)
@@ -122,7 +122,7 @@ public abstract class UIDialog {
     /// 默认值
     /// </summary>
     public UIDialog value(String value) {
-        config.put("DefaultValue");
+        config.put("DefaultValue", value);
         return this;
     }
 
@@ -192,8 +192,8 @@ public abstract class UIDialog {
                     }
                 }
                 if (Utility.isEmpty(value)) {
-                    if (IsDialog == false) {
-                        if (context.items().containsKey(context.activity()) == false) {
+                    if (!IsDialog) {
+                        if (!context.items().containsKey(context.activity())) {
                             value = request.sendValue();
                         }
                         if (Utility.isEmpty(value)) {
@@ -205,7 +205,7 @@ public abstract class UIDialog {
                                 mob.remove(asyncId);
                                 isSVs = true;
                             } else if (obj instanceof Map) {
-                                Map<String, String> idc = ((Map) obj);
+                                Map<String, String> idc = (Map<String, String>) obj;
                                 value = idc.get(asyncId);
                                 idc.remove(asyncId);//asyncId);
                                 isSVs = true;
@@ -215,11 +215,11 @@ public abstract class UIDialog {
 
                 }
 
-                if (Utility.isEmpty(value) == false) {
+                if (!Utility.isEmpty(value)) {
                     if (isSVs) {
                         request.arguments().put(asyncId, value);
                         return value;
-                    } else if (context.items().containsKey(context.activity()) == false) {
+                    } else if (!context.items().containsKey(context.activity())) {
                         context.items().put(context.activity(), true);
                         request.arguments().put(asyncId, value);
                         return value;

@@ -410,7 +410,7 @@ public final class JSON {
 
     }
 
-   private static String deserialize(String input, Index index, char cher) {
+    private static String deserialize(String input, Index index, char cher) {
         index.index++;
 
         boolean isTo = false;
@@ -479,13 +479,12 @@ public final class JSON {
 
 
     public static void serialize(Object obj, Writer sb) {
-        serialize(obj, sb,"yyyy.M.d HH:mm");
+        serialize(obj, sb, "yyyy.M.d HH:mm");
     }
 
 
     public static void serialize(Object obj, Writer writer, String dateFormat) {
         JSON json = new JSON();
-//        json.IsSerializer = false;
         json._DateFormat = dateFormat;
         try {
             json.SerializeObject(obj, writer);
@@ -494,36 +493,65 @@ public final class JSON {
         }
     }
 
-//    public static void serialize(Object obj, Writer writer, boolean serializer) {
-//        JSON json = new JSON();
-//        json.IsSerializer = serializer;
-//        try {
-//            json.SerializeObject(obj, writer);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 
     private void serialize(Map dic, Writer writer) throws IOException {
-        Iterator em = dic.keySet().iterator();
-        writer.write('{');
         boolean bo = false;
-        while (em.hasNext()) {
+
+        writer.write('{');
+
+        for (Object entry : dic.entrySet()) {
+            Map.Entry entry1 = (Map.Entry) entry;
+            entry1.getKey();
             if (bo) {
                 writer.write(',');
             } else {
                 bo = true;
             }
-            Object key = em.next();
-            this.SerializeObject(key, writer);
+            this.SerializeObject( entry1.getKey(), writer);
             writer.write(':');
-            this.SerializeObject(dic.get(key), writer);
-
+            this.SerializeObject(entry1.getValue(), writer);
         }
         writer.write('}');
     }
 
+
+    private void serializeString(String str, Writer writer) throws IOException {
+
+        writer.write('"');
+        for (int i = 0; i < str.length(); i++) {
+
+            char c = str.charAt(i);//[i];
+            switch (c) {
+                case '"':
+                    writer.write("\\\"");
+                    break;
+                case '\\':
+                    writer.write("\\\\");
+                    break;
+                case '\b':
+                    writer.write("\\b");
+                    break;
+                case '\f':
+                    writer.write("\\f");
+                    break;
+                case '\n':
+                    writer.write("\\n");
+                    break;
+                case '\t':
+                    writer.write("\\t");
+                    break;
+                case '\r':
+                    writer.write("\\r");
+                    break;
+                default:
+                    writer.write(c);
+                    break;
+            }
+        }
+        writer.write('"');
+
+    }
 
     private void SerializeObject(Object obj, Writer writer) throws IOException {
         if (obj != null) {
@@ -541,39 +569,7 @@ public final class JSON {
                 writer.write(obj.toString());
                 writer.write('"');
             } else if (type.equals(String.class)) {
-                writer.write('"');
-                String strs = (String) obj;
-                for (int i = 0; i < strs.length(); i++) {
-
-                    char c = strs.charAt(i);//[i];
-                    switch (c) {
-                        case '"':
-                            writer.write("\\\"");
-                            break;
-                        case '\\':
-                            writer.write("\\\\");
-                            break;
-                        case '\b':
-                            writer.write("\\b");
-                            break;
-                        case '\f':
-                            writer.write("\\f");
-                            break;
-                        case '\n':
-                            writer.write("\\n");
-                            break;
-                        case '\t':
-                            writer.write("\\t");
-                            break;
-                        case '\r':
-                            writer.write("\\r");
-                            break;
-                        default:
-                            writer.write(c);
-                            break;
-                    }
-                }
-                writer.write('"');
+                this.serializeString(obj.toString(), writer);
             } else if (obj instanceof IJSON) {
                 ((IJSON) obj).write(writer);
 
@@ -643,7 +639,9 @@ public final class JSON {
                 writer.write(']');
             } else {
                 if (Utility.exists(type.getDeclaredMethods(), f -> f.getName().equals("toString"))) {
-                    writer.write(obj.toString());
+                    // writer.write(obj.toString());
+
+                    this.serializeString(obj.toString(), writer);
                 } else {
                     writer.write('{');
                     Field[] propertys = type.getFields();

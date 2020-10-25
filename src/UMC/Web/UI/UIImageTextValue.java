@@ -16,33 +16,34 @@ public class UIImageTextValue extends UICell {
     }
 
 
-    private UIImageTextValue(WebMeta data) {
+    public UIImageTextValue(WebMeta data) {
         this.data = data;
     }
 
-    public static UIImageTextValue create(String src, String text, String value) {
-        UIImageTextValue t = new UIImageTextValue(new WebMeta());
-        t.data.put("src", src);
-        t.data.put("text", text).put("value", value);
-        return t;
+    public UIImageTextValue(String src, String text, String value) {
+        // UIImageTextValue t = new UIImageTextValue(new WebMeta());
+        this.data = new WebMeta();
+        this.data.put("src", src);
+        this.data.put("text", text).put("value", value);
+//        return t;
 
     }
 
     public UIImageTextValue text(String text) {
-        data.put("text", text);
+        this.format("text", text);
         return this;
     }
 
     public UIImageTextValue value(String value) {
-        data.put("value", value);
+        this.format("value", value);
         return this;
     }
 
-    public UIImageTextValue put(String name, String value) {
-        data.put(name, value);
-        return this;
-
-    }
+//    public UIImageTextValue put(String name, String value) {
+//        this.format(name, value);
+//        return this;
+//
+//    }
 
     public UIImageTextValue click(UIClick click) {
         data.put("click", click);
@@ -50,6 +51,6 @@ public class UIImageTextValue extends UICell {
 
     }
 
-    WebMeta data;
+    private WebMeta data;
 
 }

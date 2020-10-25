@@ -18,7 +18,7 @@ public class UISection implements UMC.Data.IJSON {
 
         /**
          * @param section UISection 中的section
-         * @param row UISection 中的row
+         * @param row     UISection 中的row
          */
         public Editer(int section, int row) {
 
@@ -27,8 +27,10 @@ public class UISection implements UMC.Data.IJSON {
         }
 
 
-        /**行更新，
-         * @param value 更新的组件
+        /**
+         * 行更新，
+         *
+         * @param value       更新的组件
          * @param reloadSinge 是否是单行更新，还是整体更新
          * @return
          */
@@ -43,14 +45,19 @@ public class UISection implements UMC.Data.IJSON {
         }
 
 
-        /**行删
+        /**
+         * 行删
+         *
          * @return
          */
         public Editer delete() {
             webMeta.put("method", "DEL");
             return this;
         }
-        /**行追加
+
+        /**
+         * 行追加
+         *
          * @param value 追加的组件
          * @return
          */
@@ -58,7 +65,10 @@ public class UISection implements UMC.Data.IJSON {
             webMeta.put("value", new WebMeta().cell(value)).put("method", "APPEND");
             return this;
         }
-        /**行插入
+
+        /**
+         * 行插入
+         *
          * @param value 插入的组件
          * @return
          */
@@ -67,10 +77,12 @@ public class UISection implements UMC.Data.IJSON {
             return this;
         }
 
-        /**发送到客户端
-         * @param context UMC上下文
-         * @param ui 界面的名
-         * @param endResponse  是否立刻返回客户端
+        /**
+         * 发送到客户端
+         *
+         * @param context     UMC上下文
+         * @param ui          界面的名
+         * @param endResponse 是否立刻返回客户端
          */
         public void builder(WebContext context, String ui, boolean endResponse) {
             context.send(new UMC.Web.WebMeta().event("UI.Edit", ui, webMeta), endResponse);
@@ -78,7 +90,7 @@ public class UISection implements UMC.Data.IJSON {
         }
     }
 
-    WebMeta _header = new WebMeta();
+    private WebMeta _header = new WebMeta();
 
     private UISection() {
 
@@ -89,66 +101,76 @@ public class UISection implements UMC.Data.IJSON {
 
     }
 
-    UIHeader _uiheaders;
-    UIFooter _uifooter;
-    UITitle _title;
+    private UIHeader _uiheaders;
+    private UIHeader _uifooter;
+    private UITitle _title;
+    private UIFootBar _footBar;
 
     public UIHeader uiHeader() {
-        return _uiheaders;
+        return Utility.isNull(this.parent, this)._uiheaders;
     }
 
     public UISection title(UITitle title) {
-        _title = title;
+        Utility.isNull(this.parent, this)._title = title;
         return this;
     }
 
     public UITitle title() {
-        return _title;
+        return Utility.isNull(this.parent, this)._title;
     }
 
-
-    public UISection uiFooter(UIFooter footer) {
-        _uifooter = footer;
+    public UISection uiFootBar(UIFootBar footer) {
+        Utility.isNull(this.parent, this)._footBar = footer;
         return this;
     }
 
-    public UIFooter uiFooter() {
-        return _uifooter;
+    public UIFootBar uiFootBar() {
+        return Utility.isNull(this.parent, this)._footBar;
+    }
+
+
+    public UISection uiFooter(UIHeader footer) {
+        Utility.isNull(this.parent, this)._uifooter = footer;
+        return this;
+    }
+
+    public UIHeader uiFooter() {
+        return Utility.isNull(this.parent, this)._uifooter;
     }
 
     public UISection uiheader(UIHeader header) {
-        _uiheaders = header;
+        Utility.isNull(this.parent, this)._uiheaders = header;
         return this;
     }
 
-    public static UISection create(UIHeader header, UIFooter footer) {
+    public static UISection create(UIHeader header, UIFootBar footer) {
         UISection t = new UISection();
         t.Sections = new LinkedList<>();
+        t._componens = new LinkedList<>();
         t.Sections.add(t);
-        WebMeta meta = new WebMeta();
         t._uiheaders = header;
-        t._uifooter = footer;
+        t._footBar = footer;
         return t;
     }
 
 
-    public static UISection create(UIHeader header, UIFooter footer, UITitle title) {
+    public static UISection create(UIHeader header, UIFootBar footer, UITitle title) {
         UISection t = new UISection();
         t.Sections = new LinkedList<>();
+        t._componens = new LinkedList<>();
         t.Sections.add(t);
-        WebMeta meta = new WebMeta();
         t._uiheaders = header;
-        t._uifooter = footer;
+        t._footBar = footer;
         t._title = title;
         return t;
     }
 
-    public static UISection create(UITitle title, UIFooter footer) {
+    public static UISection create(UITitle title, UIFootBar footer) {
         UISection t = new UISection();
         t.Sections = new LinkedList<>();
+        t._componens = new LinkedList<>();
         t.Sections.add(t);
-        WebMeta meta = new WebMeta();
-        t._uifooter = footer;
+        t._footBar = footer;
         t._title = title;
         return t;
     }
@@ -156,9 +178,9 @@ public class UISection implements UMC.Data.IJSON {
     public static UISection create(UITitle title) {
         UISection t = new UISection();
         t.Sections = new LinkedList<>();
+        t._componens = new LinkedList<>();
         t.Sections.add(t);
         t._title = title;
-        WebMeta meta = new WebMeta();
         return t;
 
 
@@ -167,45 +189,84 @@ public class UISection implements UMC.Data.IJSON {
     public static UISection create(UIHeader header, UITitle title) {
         UISection t = new UISection();
         t.Sections = new LinkedList<>();
+        t._componens = new LinkedList<>();
         t.Sections.add(t);
         t._title = title;
-        WebMeta meta = new WebMeta();
         t._uiheaders = header;
         return t;
 
 
     }
 
+    private List<UIView> _componens;
+
+    public List<UIView> componen() {
+        return Utility.isNull(this.parent, this)._componens;
+
+    }
+//    public
+
     private int Total;
 
     public int total() {
-        return Total;
+        return Utility.isNull(this.parent, this).Total;
     }
 
     public UISection total(int total) {
-        Total = total;
+        Utility.isNull(this.parent, this).Total = total;
         return this;
     }
 
     public static UISection create() {
         UISection t = new UISection();
+        t._componens = new LinkedList<>();
         t.Sections = new LinkedList<>();
         t.Sections.add(t);
         return t;
 
     }
 
-    public String Key;
+    public String key() {
+        return this.Key;
+    }
 
-    public boolean IsEditer;
+    public UISection key(String key) {
+        this.Key = key;
+        return this;
+    }
 
-    List<UISection> Sections;
-    private Object _data;
-    List<WebMeta> data = new LinkedList<>();
+    private String Key;
+
+    private boolean IsEditer;
+
+    public boolean editer() {
+        return this.IsEditer;
+    }
+
+    public UISection editer(boolean key) {
+        this.IsEditer = key;
+        return this;
+    }
+
+    public UISection disableSeparatorLine() {
+        disableSeparatorLine = true;
+        return this;
+    }
+
+    private boolean disableSeparatorLine;
+
+
+    private List<UISection> Sections;
+    //    private Object _data;
+    private List<Object> data = new LinkedList<>();
+    private UISection parent;
 
     public UISection newSection() {
         UISection t = new UISection();
         t.Sections = this.Sections;
+        t._componens = this._componens;
+        t.parent = Utility.isNull(this.parent, this);
+
         this.Sections.add(t);
         return t;
     }
@@ -221,8 +282,10 @@ public class UISection implements UMC.Data.IJSON {
     public UISection newSection(Collection data) {
         UISection t = new UISection();
         t.Sections = this.Sections;
+        t._componens = this._componens;
         this.Sections.add(t);
-        t._data = data;
+        t.data.addAll(data);
+        t.parent = Utility.isNull(this.parent, this);
         return t;
     }
 
@@ -277,8 +340,10 @@ public class UISection implements UMC.Data.IJSON {
 
     }
 
-    /**添加支持左滑删除的组件
-     * @param cell 行组件
+    /**
+     * 添加支持左滑删除的组件
+     *
+     * @param cell      行组件
      * @param eventText 删除后请求的事件
      * @return
      */
@@ -290,7 +355,7 @@ public class UISection implements UMC.Data.IJSON {
 
     public UISection put(UICell cell) {
 
-        data.add(new WebMeta().put("_CellName", cell.type()).put("value", cell.data()).put("format", cell.format()).put("style", cell.style()));
+        data.add(cell);//new WebMeta().put("_CellName", cell.type()).put("value", cell.data()).put("format", cell.format()).put("style", cell.style()));
         return this;
     }
 
@@ -299,103 +364,37 @@ public class UISection implements UMC.Data.IJSON {
         return this;
     }
 
-    public UISection putPro(UIPrice... pros) {
-        data.add(new WebMeta().put("_CellName", "Products").put("value", new WebMeta().put("data", pros)));
-        return this;
-
-    }
-
-    public UISection putPro(UIStyle style, UIPrice... pros) {
-        data.add(new WebMeta().put("_CellName", "Products").put("value", new WebMeta().put("data", pros)).put("style", style));
-        return this;
-    }
-
-    public UISection putItems(String model, UIItem... items) {
-        data.add(new WebMeta().put("_CellName", "UIItems").put("value", new WebMeta().put("items", items).put("model", model)));//.put("format", format).put("style", style));
-        return this;
-    }
-
-    public UISection putItems(UIItem... items) {
-        data.add(new WebMeta().put("_CellName", "UIItems").put("value", new WebMeta().put("items", items)));//.put("format", format).put("style", style));
-        return this;
-    }
-
-    public UISection putItems(UIStyle style, UIItem... items) {
-        data.add(new WebMeta().put("_CellName", "UIItems").put("value", new WebMeta().put("items", items)).put("style", style));
-        return this;
-    }
-
-    public UISection putIcon(UIEventText... icons) {
-        data.add(new WebMeta().put("_CellName", "Icons").put("value", new WebMeta().put("icons", icons)));//.put("format", format).put("style", style));
-        return this;
-    }
-
-    public UISection putIcon(UIStyle style, UIEventText... icons) {
-        data.add(new WebMeta().put("_CellName", "Icons").put("value", new WebMeta().put("icons", icons)).put("style", style));
-        return this;
-    }
-
     public UISection put(String type, WebMeta value) {
         data.add(new WebMeta().put("_CellName", type).put("value", value));
         return this;
     }
 
-    public UISection putSlider(UISlider... sliders) {
-        data.add(new WebMeta().put("_CellName", "Slider").put("value", new WebMeta().put("data", sliders)));
+
+    private Boolean IsNext;
+
+    /**
+     * 在设置有没有下一页，我们采用了两种方式，一种是直接设置有没有下一页，还有一种是通过total和limit来计算没有没有下一页
+     *
+     * @return
+     */
+    public UISection next(boolean IsNext) {
+        Utility.isNull(this.parent, this).IsNext = IsNext;
         return this;
     }
 
-
-    public Boolean IsNext;
-
-    public UISection start(boolean IsNext) {
-        this.IsNext = IsNext;
-        return this;
+    public Boolean next() {
+        return Utility.isNull(this.parent, this).IsNext;
     }
 
-    public Integer StartIndex;
+    private Integer StartIndex;
 
     public UISection start(int start) {
-        this.StartIndex = start;
+        Utility.isNull(this.parent, this).StartIndex = start;
         return this;
     }
 
-    public UISection putNumberCell(String text, String value, UIClick submit) {
-        UICell cell = UICell.create("NumberCell", new UMC.Web.WebMeta().put("text", text, "value", value).put("submit", submit));
-        this.put(cell);
-        return this;
-    }
-
-    public UISection putNumberCell(String text, String value, String title, UIClick submit) {
-        UICell cell = UICell.create("NumberCell", new UMC.Web.WebMeta().put("text", text, "value", value, "title", title).put("submit", submit));
-        this.put(cell);
-        return this;
-    }
-
-    public UISection putImageTextValue(String src, String value, UIClick click) {
-        UICell cell = UICell.create("ImageTextValue", new UMC.Web.WebMeta().put("src", src, "value", value).put("click", click));
-        this.put(cell);
-        return this;
-    }
-
-    public UISection putImageTextValue(String src, String text, String value, UIClick click) {
-        UICell cell = UICell.create("ImageTextValue", new UMC.Web.WebMeta().put("src", src, "value", value, "text", text).put("click", click));
-        this.put(cell);
-        return this;
-    }
-
-    public UISection putImageTextValue(String src, String value, int imageWidth, UIClick click) {
-        UICell cell = UICell.create("ImageTextValue", new UMC.Web.WebMeta().put("src", src, "value", value).put("click", click));
-        cell.style().name("image-width", imageWidth);
-        this.put(cell);
-        return this;
-    }
-
-    public UISection putImageTextValue(String src, String text, String value, int imageWidth, UIClick click) {
-        UICell cell = UICell.create("ImageTextValue", new UMC.Web.WebMeta().put("src", src, "value", value, "text", text).put("click", click));
-        cell.style().name("image-width", imageWidth);
-        this.put(cell);
-        return this;
+    public Integer start() {
+        return Utility.isNull(this.parent, this).StartIndex;
     }
 
 
@@ -404,51 +403,83 @@ public class UISection implements UMC.Data.IJSON {
 
     }
 
+    private boolean isOutPageKey;
+
+    public void builder(WebContext context) {
+        Utility.isNull(this.parent, this).isOutPageKey = true;
+        context.response().ClientEvent |= WebEvent.DATAEVENT;
+        context.response().headers().put("DataEvent", this);
+        context.end();
+
+    }
+
     @Override
     public void write(Writer writer) {
+        UISection me = Utility.isNull(this.parent, this);
         try {
             writer.write("{");
+            if (me.isOutPageKey) {
+                UMC.Data.JSON.serialize("type", writer);
+                writer.write(":");
+                UMC.Data.JSON.serialize("Pager", writer);
+                writer.write(",");
 
-            if (_uiheaders != null) {
+            }
+            if (me._componens.size() > 0) {
+                UMC.Data.JSON.serialize("Componen", writer);
+                writer.write(":");
+                UMC.Data.JSON.serialize(me._componens, writer);
+                writer.write(",");
+
+            }
+
+            if (me._uiheaders != null) {
                 UMC.Data.JSON.serialize("Header", writer);
                 writer.write(":");
-                UMC.Data.JSON.serialize(this._uiheaders, writer);
+                UMC.Data.JSON.serialize(me._uiheaders, writer);
                 writer.write(",");
             }
-            if (this._title != null) {
+            if (me._footBar != null) {
+
+                UMC.Data.JSON.serialize("FootBar ", writer);
+                writer.write(":");
+                UMC.Data.JSON.serialize(me._footBar, writer);
+                writer.write(",");
+            }
+            if (me._title != null) {
                 UMC.Data.JSON.serialize("Title", writer);
                 writer.write(":");
-                UMC.Data.JSON.serialize(this._title, writer);
+                UMC.Data.JSON.serialize(me._title, writer);
 
                 writer.write(",");
 
             }
-            if (_uifooter != null) {
+            if (me._uifooter != null) {
                 UMC.Data.JSON.serialize("Footer", writer);
                 writer.write(":");
-                UMC.Data.JSON.serialize(this._uifooter, writer);
+                UMC.Data.JSON.serialize(me._uifooter, writer);
 
                 writer.write(",");
             }
-            if (Total > 0) {
+            if (me.Total > 0) {
                 UMC.Data.JSON.serialize("total", writer);
                 writer.write(":");
-                UMC.Data.JSON.serialize(Total, writer);
+                UMC.Data.JSON.serialize(me.Total, writer);
                 writer.write(",");
 
             }
-            if (StartIndex != null && StartIndex > -1) {
+            if (me.StartIndex != null && me.StartIndex > -1) {
                 UMC.Data.JSON.serialize("start", writer);
                 writer.write(":");
-                UMC.Data.JSON.serialize(this.StartIndex, writer);
+                UMC.Data.JSON.serialize(me.StartIndex, writer);
                 writer.write(",");
 
             }
-            if (this.IsNext != null) {
+            if (me.IsNext != null) {
 
                 UMC.Data.JSON.serialize("next", writer);
                 writer.write(":");
-                UMC.Data.JSON.serialize(this.IsNext, writer);
+                UMC.Data.JSON.serialize(me.IsNext, writer);
                 writer.write(",");
             }
             UMC.Data.JSON.serialize("DataSource", writer);
@@ -463,7 +494,7 @@ public class UISection implements UMC.Data.IJSON {
                     b = true;
                 }
                 writer.write("{");
-                if (Utility.isEmpty(sec.Key) == false) {
+                if (!Utility.isEmpty(sec.Key)) {
                     UMC.Data.JSON.serialize("key", writer);
                     writer.write(":");
                     UMC.Data.JSON.serialize(sec.Key, writer);
@@ -478,17 +509,19 @@ public class UISection implements UMC.Data.IJSON {
                 }
                 UMC.Data.JSON.serialize("data", writer);
                 writer.write(":");
-                if (sec._data != null) {
 
-                    UMC.Data.JSON.serialize(sec._data, writer);
-                } else {
-                    UMC.Data.JSON.serialize(sec.data, writer);
-                }
+                UMC.Data.JSON.serialize(sec.data, writer);
+
                 if (sec._header.size() > 0) {
                     writer.write(",");
                     UMC.Data.JSON.serialize("header", writer);
                     writer.write(":");
                     UMC.Data.JSON.serialize(sec._header, writer);
+                }
+                if (sec.disableSeparatorLine) {
+                    writer.write(",");
+                    UMC.Data.JSON.serialize("separatorLine", writer);
+                    writer.write(":false");
                 }
                 writer.write("}");
 

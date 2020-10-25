@@ -37,7 +37,7 @@ public class SystemSetupActivity extends WebActivity {
             fm.addText("数据库名", "Database", "");
             switch (type) {
                 case "SQLite":
-                    return this.dialogValue(new WebMeta().put("File", "UMC"));
+                    return this.dialogValue(new WebMeta().put("File", "UMC.java"));
 //                    break;
                 case "Oracle":
                     fm.addText("端口", "Port", "1521");
@@ -70,10 +70,8 @@ public class SystemSetupActivity extends WebActivity {
         switch (type) {
             case "SQLite":
                 provder = UMC.Data.Provider.create("Database", UMC.Data.Sql.SQLIteDBProvider.class.getName());
-                String filename = Settings.get("File");
-                if (filename.indexOf('.') == -1) {
-                    filename = filename + ".sqlite";
-                }
+                String filename = Settings.get("File") + ".sqlite";
+
                 File file = new File(Utility.mapPath("~/App_Data/" + filename));
 
                 if (file.exists()) {
@@ -135,7 +133,7 @@ public class SystemSetupActivity extends WebActivity {
         Initializer[] Initializers = Initializer.Initializers();
 
 
-        ProviderConfiguration database = UMC.Data.ProviderConfiguration.configuration("Database");
+        ProviderConfiguration database = UMC.Data.ProviderConfiguration.configuration("database");
         if (database == null) {
             database = new ProviderConfiguration();
         }
@@ -146,15 +144,18 @@ public class SystemSetupActivity extends WebActivity {
             if (provider1 == null) {
                 count = true;
                 initer.Setup(new HashMap(), provider);
+
                 Provider de = UMC.Data.Provider.create(initer.providerName(), provder.type());
                 de.attributes().putAll(provder.attributes());//.Add(provder.Attributes);
                 database.set(de);
+                initer.Menu(new HashMap(), factory);
             } else {
 
                 if (Utility.isEmpty(provider1.attributes().get("setup")) == false) {
+                    DbProvider dbProvider = (DbProvider) Utility.createInstance(provider1);
                     count = true;
-                    initer.Setup(new HashMap(), (DbProvider) Utility.createInstance(provider1));
-
+                    initer.Setup(new HashMap(), dbProvider);
+                    initer.Menu(new HashMap(), Database.instance(dbProvider));
                 }
 
             }
@@ -164,17 +165,17 @@ public class SystemSetupActivity extends WebActivity {
         if (count == false) {
             this.prompt("对应组件已经安装");
         } else {
-            File file = new File(Utility.mapPath("App_Data\\UMC\\Database.xml"));
-            if (file.exists()) {
-                // File.
-                int i = 1;
-                File m = new File(Utility.mapPath(String.format("App_Data\\UMC\\Database.xml.%d.bak", i)));
-                while (m.exists()) {
-                    i++;
-                    m = new File(Utility.mapPath(String.format("App_Data\\UMC\\Database.xml.%d.bak", i)));
-                }
-                file.renameTo(m);
-            }
+            File file = new File(Utility.mapPath("App_Data\\UMC\\database.xml"));
+//            if (file.exists()) {
+//                // File.
+//                int i = 1;
+//                File m = new File(Utility.mapPath(String.format("App_Data\\UMC\\Database.xml.%d.bak", i)));
+//                while (m.exists()) {
+//                    i++;
+//                    m = new File(Utility.mapPath(String.format("App_Data\\UMC\\Database.xml.%d.bak", i)));
+//                }
+//                file.renameTo(m);
+//            }
             try {
                 database.WriteTo(file);
             } catch (Exception e) {

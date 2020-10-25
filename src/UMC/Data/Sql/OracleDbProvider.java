@@ -4,66 +4,55 @@ public class OracleDbProvider extends DbProvider {
     static {
         try {
             Class.forName("oracle.jdbc.driver.OracleDriver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.out.println("not oracle jdbc.Driver");
         }
     }
 
-  static   class OracleBuilder  extends DbBuilder
-    {
-        public  String AddColumn(String name, String field, String type)
-        {
+    static class OracleBuilder extends DbBuilder {
+        public String AddColumn(String name, String field, String type) {
             return String.format("ALTER TABLE %s ADD(%s %s)", name, field, type);
         }
 
-        public  String Boolean()
-        {
+        public String Boolean() {
             return "TINYINT";
         }
 
-        public  String Date()
-        {
+        public String Date() {
             return "DATE";
         }
 
-        public  String DropColumn(String name, String field)
-        {
+        public String DropColumn(String name, String field) {
             return String.format("ALTER TABLE %s DROP COLUMN %s", name, field);
         }
 
-        public  String Float()
-        {
+        public String Float() {
             return "FLOAT";
         }
 
-        public  String Guid()
-        {
+        public String Guid() {
             return "CHAR(36)";
         }
 
-        public  String Integer()
-        {
+        public String Integer() {
             return "INTEGER";
         }
-        public  String Column(String field)
-        {
+
+        public String Column(String field) {
             return field.toUpperCase();
         }
 
-        public  String Number()
-        {
+        public String Number() {
             return "NUMBER(16,2)";
         }
 
-        public  String PrimaryKey(String name,  String... fields)
-        {
-            StringBuilder sb = new  StringBuilder();
+        public String PrimaryKey(String name, String... fields) {
+            StringBuilder sb = new StringBuilder();
             sb.append("ALTER TABLE ");
             sb.append(name.toUpperCase());
             sb.append(" ADD PRIMARY KEY (");// name);// id);")
-            for (String s : fields)
-            {
-                sb.append( s.toUpperCase());
+            for (String s : fields) {
+                sb.append(s.toUpperCase());
                 sb.append(',');
 
             }
@@ -73,14 +62,21 @@ public class OracleDbProvider extends DbProvider {
 
         }
 
-        public  String String()
-        {
+        public String String() {
             return "NVARCHAR2(255)";
         }
 
-        public  String Text()
-        {
+        public String Text() {
             return "VARCHAR2(4000)";
+        }
+
+        public Boolean Check(String name, String field, ISqler sqler) {
+
+            return (int) (sqler.executeScalar("select count(*) from user_tab_columns where table_name = {0} and column_name = {1}", name, field)) > 0;
+        }
+
+        public Boolean Check(String name, ISqler sqler) {
+            return (int) (sqler.executeScalar("select count(*) from user_objects where table_name = {0}", name)) > 0;
         }
     }
 

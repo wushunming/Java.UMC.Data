@@ -24,16 +24,14 @@ public class UIDiscount extends UICell {
         this.data = data;
     }
 
-    public static UIDiscount create() {
-
-        UIDiscount t = new UIDiscount(new WebMeta());
-        return t;
+    public UIDiscount () {
+        this.data = new WebMeta();
     }
 
-    public static UIDiscount create(UIClick click) {
-        UIDiscount t = create();
-        t.data.put("click", click);
-        return t;
+    public UIDiscount (UIClick click) {
+        this.data = new WebMeta();
+        this.data.put("click", click);
+
     }
 
     public UIDiscount click(UIClick click) {
@@ -44,15 +42,15 @@ public class UIDiscount extends UICell {
 
     public UIDiscount gradient(int startColor, int endColor) {
 
-        data.put("endColor", UIStyle.intParseColor(endColor));
+        this.style().name("endColor", UIStyle.intParseColor(endColor));
 
-        data.put("startColor", UIStyle.intParseColor(startColor));
-       
+        this.style().name("startColor", UIStyle.intParseColor(startColor));
+
         return this;
     }
 
     public UIDiscount desc(String desc) {
-        data.put("desc", desc);
+        this.format("desc", desc);
         return this;
     }
 
@@ -61,6 +59,17 @@ public class UIDiscount extends UICell {
         return this;
 
     }
+    public UIDiscount time(String time) {
+        this.format("time", time);
+        return this;
+
+    }
+    public UIDiscount value(String value) {
+        this.format("value", value);
+        return this;
+
+    }
+
 
     public UIDiscount end(String end) {
         data.put("end", end);
@@ -74,11 +83,6 @@ public class UIDiscount extends UICell {
 
     }
 
-    public UIDiscount value(String value) {
-        this.data.put("value", value);
-        return this;
-
-    }
 
     public UIDiscount state(String state) {
         this.data.put("state", state);

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * UMC功能注册
  */
-@Target({ElementType.TYPE,ElementType.PACKAGE})
+@Target({ElementType.TYPE, ElementType.PACKAGE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Mapping {
 
@@ -34,5 +34,8 @@ public @interface Mapping {
     String desc() default "";
 
     WebAuthType auth() default WebAuthType.all;
+
+    int weight() default 0;
+
 }
 

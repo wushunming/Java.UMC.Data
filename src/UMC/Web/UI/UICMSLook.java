@@ -17,12 +17,13 @@ public class UICMSLook extends UICell {
         return "CMSLook";
     }
 
-    public static UICMSLook create(String src, UIClick click, WebMeta data) {
-        UICMSLook t = new UICMSLook(data);
-        t.data.put("src", src);
-        t.data.put("click", click);
+    public UICMSLook(String src, UIClick click, WebMeta data) {
+        // UICMSLook t = new UICMSLook(data);
+        this.data = data;
+        this.data.put("src", src);
+        this.data.put("click", click);
 
-        return t;
+//        return t;
 
     }
 

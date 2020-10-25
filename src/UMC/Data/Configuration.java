@@ -12,12 +12,10 @@ public class Configuration<T> {
     public String Key;
     public String ContentType;
     private UUID _user_id;
-    private Class<T> tClass;
 
     public Configuration(String sessionKey, Identity id, Class<T> tClass) {
         this.Key = sessionKey;
 
-        this.tClass = tClass;
         Session se = GSession(sessionKey, id);
         if (se != null) {
             this.ContentType = se.ContentType;
@@ -39,7 +37,6 @@ public class Configuration<T> {
 
     public Configuration(String sessionKey, Class<T> tClass) {
 
-        this.tClass = tClass;
         this.Key = sessionKey;
         Session se = GSession(sessionKey, null);
         if (se != null) {
@@ -118,6 +115,7 @@ public class Configuration<T> {
     }
 
     public void commit(T value, UUID... ids) {
+        this.Value = value;
         this.commit(ids);
     }
 
@@ -142,21 +140,24 @@ public class Configuration<T> {
         }
         this.ModifiedTime = new Date();
 
-        Database database = Database.instance();
-        database.begin();
-        try {
-            IObjectEntity<Session> sessionEneity = database.objectEntity(Session.class);
-            sessionEneity.where().and().equal("SessionKey", this.Key);
+//        Database database = Database.instance();
+//        database.begin();
+//        try {
+        IObjectEntity<Session> sessionEneity = Database.instance().objectEntity(Session.class);
 
-            sessionEneity.delete();
+        if (ids.length > 1) {
+            sessionEneity.where().and().equal(new Session().SessionKey(session.SessionKey)).or().contains().and().equal(new Session().ContentType(session.ContentType).User_id(session.user_id))
+                    .entities().iff(e -> e.delete() >= 0, e -> e.insert(session));
 
-            sessionEneity.where().and().in("user_id", ids);
-
-            sessionEneity.insert(session);
-
-            database.commit();
-        } catch (Exception e) {
-            database.rollback();
+        } else {
+            sessionEneity.where().and().equal(new Session().SessionKey(session.SessionKey))
+                    .entities().iff(e -> e.update(session) == 0, e -> e.insert(session));
         }
+
+
+//            database.commit();
+//        } catch (Exception e) {
+//            database.rollback();
+//        }
     }
 }

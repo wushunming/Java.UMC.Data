@@ -10,8 +10,8 @@ public class SQLIteDBProvider extends DbProvider {
 
         try {
             Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+            System.out.println("not sqlite jdbc.Driver");
         }
     }
 
@@ -59,6 +59,29 @@ public class SQLIteDBProvider extends DbProvider {
         public String Text() {
             return "CHAR";
         }
+
+        public Boolean Check(String name, ISqler sqler) {
+
+            int m = (int) (sqler.executeScalar("select count(*)  from sqlite_master where type ={1} and name = {0}", name, "table"));
+            return m > 0;
+        }
+
+        private boolean _scheck;
+
+        public Boolean Check(String name, String field, ISqler sqler) {
+            _scheck = false;// bc ;
+            sqler.execute(String.format("PRAGMA  table_info(%s)", name), dr ->
+            {
+                while (dr.next()) {
+                    if (field.equalsIgnoreCase(dr.getString("name"))) {
+                        _scheck = true;
+                        return;
+                    }
+
+                }
+            });
+            return _scheck;
+        }
     }
 
     @Override
@@ -70,11 +93,6 @@ public class SQLIteDBProvider extends DbProvider {
     public String conntionString() {
         String name = Utility.isNull(this.provider.get("db"), "umc.db");
         File file = new File(Utility.mapPath("~/App_Data/" + name));
-//        if (file.exists() == false) {
-//            if (file.getParentFile().exists() == false) {
-//                file.getParentFile().mkdirs();
-//            }
-//        }
 
         return "jdbc:sqlite:" + file.toPath().toString();
 

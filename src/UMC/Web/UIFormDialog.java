@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class UIFormDialog extends UIDialog {
-  private   List<WebMeta> dataSrouce = new LinkedList<>();
+    private List<WebMeta> dataSrouce = new LinkedList<>();
 
     @Override
     protected String type() {
@@ -41,56 +41,56 @@ public class UIFormDialog extends UIDialog {
 
 
     public void menu(String text, String model, String cmd, WebMeta param) {
-        this.menu(this.createMenu(text, model, cmd, param));
+        this.menu(createMenu(text, model, cmd, param));
     }
 
-    public void add(String type, WebMeta value, WebMeta format, UIStyle style) {
-        this.dataSrouce.add(new WebMeta().put("Type", type).put("value", value).put("format", format).put("style", style));
-
-    }
 
     public void add(UICell cell) {
         this.dataSrouce.add(new WebMeta().put("Type", cell.type()).put("value", cell.data()).put("format", cell.format()).put("style", cell.style()));
 
     }
 
-    public void addArea(String title, String Code, String defaultValue) {
 
-        this.addOption(title, Code, defaultValue, defaultValue).command("Schedule", "Area");
+    public void addSlider(String title, String name, int defaultValue, int min, int max) {
+
+        meta("FieldSlider", name, title).put("Max", max).put("Min", min).put("DefaultValue", defaultValue);
     }
 
-    public void addSlider(String title, String Code, int defaultValue, int min, int max) {
-
-        meta("FieldSlider", Code, title).put("Max", max).put("Min", min).put("DefaultValue", defaultValue);
+    public void addSlider(String title, String name, int defaultValue) {
+        addSlider(title, name, defaultValue, 0, 100);
     }
 
-    public void addSlider(String title, String Code, int defaultValue) {
-        addSlider(title, Code, defaultValue, 0, 100);
+
+    /**
+     * 地址输入框，可获取本地地址
+     *
+     * @param title
+     * @param name
+     * @param defaultValue
+     */
+    public void addAddress(String title, String name, String defaultValue) {
+
+        meta("Address", name, title).put("DefaultValue", defaultValue);
     }
 
-    public void addAddress(String title, String Code, String defaultValue) {
+    public void addPhone(String title, String name, String defaultValue) {
 
-        meta("Address", Code, title).put("DefaultValue", defaultValue);
+        meta("Number", name, title, defaultValue).put("Vtype", "Phone");
     }
 
-    public void addPhone(String title, String Code, String defaultValue) {
+    public WebMeta addNumber(String title, String name, Integer defaultValue) {
 
-        meta("Number", Code, title, defaultValue).put("Vtype", "Phone");
+        return meta("Number", name, title, defaultValue + "");//.put("Vtype", "Phone");
     }
 
-    public WebMeta addNumber(String title, String Code, Integer defaultValue) {
+    public WebMeta add(String type, String name, String title, String defaultValue) {
 
-        return meta("Number", Code, title, defaultValue + "");//.put("Vtype", "Phone");
-    }
-
-    public WebMeta add(String type, String Code, String title, String defaultValue) {
-
-        return meta(type, Code, title, defaultValue);
+        return meta(type, name, title, defaultValue);
 
     }
 
-    public void addNumber(String title, String Code, Float defaultValue) {
-        meta("Number", Code, title, defaultValue + "");
+    public void addNumber(String title, String name, Float defaultValue) {
+        meta("Number", name, title, defaultValue + "");
     }
 
 
@@ -106,32 +106,32 @@ public class UIFormDialog extends UIDialog {
         meta("Prompt", Math.random() + "", null).put("Text", caption);
     }
 
-    public WebMeta addBarCode(String title, String Code, String defaultValue) {
+    public WebMeta addBarCode(String title, String name, String defaultValue) {
 
-        return meta("BarCode", Code, title, defaultValue);
+        return meta("BarCode", name, title, defaultValue);
     }
 
-    public WebMeta addOption(String title, String code, String value, String text) {
-        return meta("Option", code, title, value).put("Text", text);
+    public WebMeta addOption(String title, String name, String value, String text) {
+        return meta("Option", name, title, value).put("Text", text);
     }
 
-    public WebMeta addFile(String title, String Code, String defaultValue) {
+    public WebMeta addFile(String title, String name, String defaultValue) {
 
-        return meta("File", Code, title, defaultValue);//.put("Text", text);
+        return meta("File", name, title, defaultValue);//.put("Text", text);
     }
 
-    public WebMeta addFiles(String title, String Code) {
-        return meta("Files", Code, title);// defaultValue);/
+    public WebMeta addFiles(String title, String name) {
+        return meta("Files", name, title);// defaultValue);/
     }
 
-    public WebMeta addTextarea(String title, String Code, String defaultValue) {
+    public WebMeta addTextarea(String title, String name, String defaultValue) {
 
-        return meta("Textarea", Code, title, defaultValue);
+        return meta("Textarea", name, title, defaultValue);
     }
 
-    public WebMeta addDate(String title, String code, Date date) {
+    public WebMeta addDate(String title, String name, Date date) {
 
-        WebMeta v = meta("Date", code, title);
+        WebMeta v = meta("Date", name, title);
         if (date != null) {
             java.text.DateFormat format = new java.text.SimpleDateFormat("yyyy-MM-dd");
             v.put("DefaultValue", format.format(date));
@@ -139,9 +139,9 @@ public class UIFormDialog extends UIDialog {
         return v;
     }
 
-    public WebMeta addText(String title, String code, String defaultValue) {
+    public WebMeta addText(String title, String name, String defaultValue) {
 
-        return meta("Text", code, title, defaultValue);
+        return meta("Text", name, title, defaultValue);
     }
 
     public WebMeta addTextValue(String title, ListItemCollection items) {
@@ -211,8 +211,13 @@ public class UIFormDialog extends UIDialog {
     }
 
 
-    public WebMeta addPassword(String title, String Code, boolean IsDisabledMD5) {
-        WebMeta v = meta("Password", Code, title);
+    /**
+     * 增加密码输入选择框
+     *
+     * @param title
+     */
+    public WebMeta addPassword(String title, String name, boolean IsDisabledMD5) {
+        WebMeta v = meta("Password", name, title);
 
         if (IsDisabledMD5) {
             v.put("IsDisabledMD5", "true");
@@ -223,8 +228,13 @@ public class UIFormDialog extends UIDialog {
         return v;
     }
 
-    public WebMeta addPassword(String title, String Code, String defaultValue) {
-        WebMeta v = meta("Password", Code, title, defaultValue);
+    /**
+     * 增加密码输入选择框，在APP上默认采用md5(Time+密码)
+     *
+     * @param title
+     */
+    public WebMeta addPassword(String title, String name, String defaultValue) {
+        WebMeta v = meta("Password", name, title, defaultValue);
 
         v.put("Time", System.currentTimeMillis() / 1000);
 
@@ -261,14 +271,28 @@ public class UIFormDialog extends UIDialog {
     }
 
 
-    public WebMeta addTime(String title, String code, int hour, int minute) {
-        WebMeta v = meta("Time", code, title, hour + ":" + minute);
+    /**
+     * 增加时间选择框
+     *
+     * @param title
+     * @param name
+     */
+
+    public WebMeta addTime(String title, String name, int hour, int minute) {
+        WebMeta v = meta("Time", name, title, hour + ":" + minute);
         return v;
 
     }
 
-    public WebMeta addTime(String title, String code, Date defaultValue) {
-        WebMeta v = meta("Time", code, title);
+    /**
+     * 增加时间选择框
+     *
+     * @param title
+     * @param name
+     */
+
+    public WebMeta addTime(String title, String name, Date defaultValue) {
+        WebMeta v = meta("Time", name, title);
         if (defaultValue != null) {
             java.text.DateFormat format = new java.text.SimpleDateFormat("HH:mm");
             v.put("DefaultValue", format.format(defaultValue));
@@ -276,59 +300,117 @@ public class UIFormDialog extends UIDialog {
         return v;
     }
 
-    public ListItemCollection addSelect(String title, String code) {
+    /**
+     * 增加列表框
+     *
+     * @param title
+     * @param name
+     */
+    public ListItemCollection addSelect(String title, String name) {
         ListItemCollection t = new ListItemCollection();
-        addSelect(title, code, t);
+        addSelect(title, name, t);
         return t;
     }
 
-    public void addSelect(String title, String code, ListItemCollection items) {
-        WebMeta v = meta("Select", code, title);
+    /**
+     * 增加列表框
+     *
+     * @param title
+     * @param name
+     * @param items
+     */
+    public void addSelect(String title, String name, ListItemCollection items) {
+        WebMeta v = meta("Select", name, title);
 
         v.put("DataSource", items);
         this.dataSrouce.add(v);
     }
 
-    public ListItemCollection addCheckBox(String title, String code, String defaultValue) {
+
+    /**
+     * 增加多选框
+     *
+     * @param title
+     * @param name
+     * @param defaultValue
+     */
+    public ListItemCollection addCheckBox(String title, String name, String defaultValue) {
         ListItemCollection t = new ListItemCollection();
-        addCheckBox(title, code, t, defaultValue);
+        addCheckBox(title, name, t, defaultValue);
         return t;
     }
 
-    public ListItemCollection addCheckBox(String title, String code) {
+    /**
+     * 增加多选框
+     *
+     * @param title
+     * @param name
+     */
+    public ListItemCollection addCheckBox(String title, String name) {
         ListItemCollection t = new ListItemCollection();
-        addCheckBox(title, code, t);
+        addCheckBox(title, name, t);
         return t;
     }
 
-    public void addCheckBox(String title, String code, ListItemCollection items, String defaultValue) {
+    /**
+     * 增加多选框
+     *
+     * @param title
+     * @param name
+     * @param items
+     */
+    public void addCheckBox(String title, String name, ListItemCollection items, String defaultValue) {
 
-        WebMeta v = meta("CheckboxGroup", code, title, defaultValue);
+        WebMeta v = meta("CheckboxGroup", name, title, defaultValue);
 
         v.put("DataSource", items);
     }
 
-    public void addCheckBox(String title, String code, ListItemCollection items) {
-        addCheckBox(title, code, items, null);
+    /**
+     * 增加多选框
+     *
+     * @param title
+     * @param name
+     * @param items
+     */
+    public void addCheckBox(String title, String name, ListItemCollection items) {
+        addCheckBox(title, name, items, null);
     }
 
-    public ListItemCollection addRadio(String title, String code) {
+    public ListItemCollection addRadio(String title, String name) {
         ListItemCollection t = new ListItemCollection();
-        addRadio(title, code, t);
+        addRadio(title, name, t);
         return t;
     }
 
-    public void addRadio(String title, String code, ListItemCollection items) {
-        WebMeta v = meta("RadioGroup", code, title);
+    /**
+     * 增加单选框
+     *
+     * @param title
+     * @param name
+     * @param items
+     */
+    public void addRadio(String title, String name, ListItemCollection items) {
+        WebMeta v = meta("RadioGroup", name, title);
         v.put("DataSource", items);
 
     }
 
+    /**
+     * @param btnName 修改提交按钮的名称
+     */
     public void submit(String btnName) {
         this.config.put("submit", btnName);
         this.dataSrouce.get(this.dataSrouce.size() - 1).put("Submit", "YES");
     }
 
+    /**
+     * 改变默认提交的model与cmd
+     *
+     * @param btnName 提交按钮名称
+     * @param model   提交的model
+     * @param cmd     提交的cmd
+     */
     public void submit(String btnName, String model, String cmd, WebMeta param) {
         WebMeta p = new WebMeta();
         if (param != null && param.size() > 0) {
@@ -348,6 +430,14 @@ public class UIFormDialog extends UIDialog {
 
     private WebMeta submit;
 
+    /**
+     * 采用事件模式提交
+     *
+     * @param btnName    提交按钮名称
+     * @param model      提交的model
+     * @param cmd        提交的cmd
+     * @param colseEvent 关闭事件
+     */
     public void submit(String btnName, String model, String cmd, String... colseEvent) {
         WebMeta p = new WebMeta();
 
@@ -362,22 +452,35 @@ public class UIFormDialog extends UIDialog {
 
     }
 
+    /**
+     * 隐藏提交按钮
+     */
     public void hideSubmit() {
         this.config.put("submit", false);
     }
 
+    /**
+     * 设置提交按钮在当前位置
+     */
     public void submit() {
         this.dataSrouce.get(this.dataSrouce.size() - 1).put("Submit", "YES");
     }
 
-    public WebMeta addVerify(String title, String code, String placeholder) {
+    public WebMeta addVerify(String title, String name, String placeholder) {
 
 
-        WebMeta v = meta("Verify", code, title).put("placeholder", placeholder);
+        WebMeta v = meta("Verify", name, title).put("placeholder", placeholder);
         return v;
 
     }
 
+    /**
+     * 采用事件方式提交
+     *
+     * @param btnName    提交按钮名称
+     * @param request    当前请求
+     * @param colseEvent 关闭事件
+     */
     public void submit(String btnName, WebRequest request, String... colseEvent) {
         if (colseEvent.length > 0) {
             this.config.put("CloseEvent", String.join(",", colseEvent));

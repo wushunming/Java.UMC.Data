@@ -6,14 +6,14 @@ import UMC.Web.UICell;
 import UMC.Web.UIClick;
 
 public class UIImageTitleDescBottom extends UICell {
-    private UIImageTitleDescBottom(WebMeta data) {
+    public UIImageTitleDescBottom(WebMeta data) {
         this.data = data;
     }
 
-    public static UIImageTitleDescBottom Create(WebMeta data, String src) {
-        UIImageTitleDescBottom t = new UIImageTitleDescBottom(data);
-        t.data.put("src", src);
-        return t;
+    public UIImageTitleDescBottom(WebMeta data, String src) {
+        this.data = data;
+        this.data.put("src", src);
+//        return t;
 
     }
 

@@ -100,29 +100,19 @@ public class WebMeta implements UMC.Data.IJSON {
         this.map.put(key, value);
     }
 
-    public WebMeta event(String name, Object value) {
-        this.put("type", "UI.Event", "key", name).put("value", value);
-        return this;
-    }
+
 
     public WebMeta cell(UICell cell) {
         this.put("_CellName", cell.type()).put("value", cell.data()).put("format", cell.format()).put("style", cell.style());
         return this;
     }
 
-    public WebMeta event(String name, String ui, Object value) {
 
-        switch (Utility.isNull(ui, "none")) {
-            case "none":
-                this.put("type", "UI.Event", "key", name).put("value", value);
-                break;
-            default:
-                this.put("type", "UI.Event", "key", name).put("ui", ui).put("value", value);
-                break;
-        }
-        return this;
-    }
-
+    /** 快速配置 Model、Command
+     * @param model
+     * @param cmd
+     * @return
+     */
     public WebMeta command(String model, String cmd) {
 
         this.put("Model", model, "Command", cmd);
@@ -133,28 +123,80 @@ public class WebMeta implements UMC.Data.IJSON {
         return this.put("required", "no");
     }
 
+    /** 快速配置输入框关联的 Model、Command 、SendValue
+     * @param model
+     * @param cmd
+     * @param value
+     * @return
+     */
     public WebMeta command(String model, String cmd, String value) {
         this.put("SendValue", value, "Model", model, "Command", cmd);
         return this;
     }
 
+    /** 快速配置输入框关联的 Model、Command 、SendValue
+     * @param model
+     * @param cmd
+     * @param value
+     * @return
+     */
     public WebMeta command(String model, String cmd, WebMeta value) {
         this.put("Model", model, "Command", cmd).put("SendValue", value);
         return this;
     }
 
+    /** 快速配置关闭事件参数
+     * @param values
+     * @return
+     */
     public WebMeta closeEvent(String... values) {
         this.put("CloseEvent", String.join(",", values));
         return this;
     }
-
+    /** 快速配置刷新事件参数
+     * @param values
+     * @return
+     */
     public WebMeta refreshEvent(String... values) {
         this.put("RefreshEvent", String.join(",", values));
         return this;
     }
-
+    /** 快速配置空文本提示
+     * @param placeholder
+     * @return
+     */
     public WebMeta placeholder(String placeholder) {
         this.put("placeholder", placeholder);
+        return this;
+    }
+
+    /** 设置界面数据事件，并配置事件关联数据
+     * @param name 事件名称
+     * @param value 事件数据
+     * @return
+     */
+    public WebMeta event(String name, Object value) {
+        this.put("type", "UI.Event", "key", name).put("value", value);
+        return this;
+    }
+    /** 设置界面数据事件，并配置事件关联数据
+     * @param name 事件名称
+     * @param ui 所在界面
+     * @param value 事件数据
+     * @return
+     */
+    public WebMeta event(String name, String ui, Object value)
+    {
+        switch ((Utility.isNull(ui,"none").toLowerCase()))
+        {
+            case "":
+            case "none":
+                this.put("type", "UI.Event", "key", name).put("value", value);
+                break;
+            default:
+                this.put("type", "UI.Event", "key", name).put("ui", ui).put("value", value);
+                break;
+        }
         return this;
     }
 

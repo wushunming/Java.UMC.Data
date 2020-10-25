@@ -2,140 +2,177 @@ package UMC.Data.Sql;
 
 public interface IOperator<T> {
 
-//     interface IField<E> {
-//        E get();
-//    }
 
 
-    /// <summary>
-    /// 实体不等于 &gt;&gt;
-    /// </summary>
-    /// <param name="field">非空属性实体</param>
-    /// <returns></returns>
+
+    /** 实体不等于 &gt;&gt;
+     * @param field 非空属性实体
+     * @return
+     */
     IWhere<T> unEqual(T field);
-//    IWhere<T> unEqual(IField<T> field);
 
-    /// <summary>
-    /// 实体等于 =
-    /// </summary>
-    /// <param name="field">非空属性实体</param>
+
+    /** 实体等于 =
+     * @param field 非空属性实体
+     * @return
+     */
     IWhere<T> equal(T field);
-//    IWhere<T> equal(IField<T> field);
 
-    /// <summary>
-    /// 实体大于 &gt;
-    /// </summary>
-    /// <param name="field">非空属性实体</param>
+
+    /** 实体大于 &gt;
+     * @param field 非空属性实体
+     * @return
+     */
     IWhere<T> greater(T field);
-//    IWhere<T> greater(IField<T> field);
 
-    /// <summary>
-    /// 实体小于&lt;
-    /// </summary>
-    /// <param name="field">非空属性实体</param>
+
+    /** 实体小于&lt;
+     * @param field 非空属性实体
+     * @return
+     */
     IWhere<T> smaller(T field);
-//    IWhere<T> smaller(IField<T> field);
 
-    /// <summary>
-    /// 实体大于等于 &gt;=
-    /// </summary>
-    /// <param name="field">非空属性实体</param>
+
+    /** 实体大于等于 &gt;=
+     * @param field 非空属性实体
+     * @return
+     */
     IWhere<T> greaterEqual(T field);
-//    IWhere<T> greaterEqual(IField<T> field);
 
     /// <summary>
     /// 实体小于等于 &lt;=
     /// </summary>
     /// <param name="field">非空属性实体</param>
-    IWhere<T> smallerEqual(T field);
-//    IWhere<T> smallerEqual(IField<T> field);
 
-    /// <summary>
-    /// 不等于&lt;&gt;
-    /// </summary>
+    /** 实体小于等于 &lt;=
+     * @param field 非空属性实体
+     * @return
+     */
+    IWhere<T> smallerEqual(T field);
+
+    /**不等于&lt;&gt;
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> unEqual(String field, Object value);
 
-    /// <summary>
-    /// 等于 =
-    /// </summary>
+    /** 等于 =
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> equal(String field, Object value);
 
-    /// <summary>
-    /// 大于 &gt;
-    /// </summary>
+
+    /**大于 &gt;
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> greater(String field, Object value);
 
-    /// <summary>
-    /// 小于&lt;
-    /// </summary>
+
+
+    /**小于&lt;
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> smaller(String field, Object value);
 
-    /// <summary>
-    /// 大于等于 &gt;=
-    /// </summary>
+    /**大于等于 &gt;=
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> greaterEqual(String field, Object value);
 
-    /// <summary>
-    /// 小于等于 &lt;=
-    /// </summary>
+
+
+    /**小于等于 &lt;=
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> smallerEqual(String field, Object value);
 
-    /// <summary>
-    /// 不等于
-    /// </summary>
+    /**不等于
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> notLike(String field, String value);
 
-    /// <summary>
-    /// like
-    /// </summary>
+
+
+    /**like
+     * @param field
+     * @param value
+     * @return
+     */
     IWhere<T> like(String field, String value);
 
-    /// <summary>
-    /// like
-    /// </summary>
+    /**Like 查询
+     * @param field
+     * @param schar 是否加追加%
+     * @return
+     */
     IWhere<T> like(T field, boolean schar);
-//    IWhere<T> like(IField<T> field, boolean schar);
 
-    /// <summary>
-    /// like
-    /// </summary>
+    /**
+     * @param field 非空字段的的做做为Like
+     * @return
+     */
     IWhere<T> like(T field);
-//    IWhere<T> like(IField<T> field);
 
-    /// <summary>
-    /// in
-    /// </summary>
+    /** in查询条件
+     * @param field  字段
+     * @param values in的值
+     * @return
+     */
     IWhere<T> in(String field, Object... values);
 
+    /** in查询条件
+     * @param field 只能一个非空字段的值
+     * @param values in的值
+     * @return
+     */
     IWhere<T> in(T field, Object... values);
 
 
-    /// <summary>
-    /// in
-    /// </summary>
+    /**
+     * @param field
+     * @param script
+     * @return
+     */
     IWhere<T> in(String field, Script script);
 
-    /// <summary>
-    /// Not in
-    /// </summary>
+    /** notIn
+     * @param field 字段
+     * @param values Not in的值
+     * @return
+     */
     IWhere<T> notIn(String field, Object... values);
 
-    /// <summary>
-    /// Not in
-    /// </summary>
-    /// <param name="field">只能一个非空字段的值</param>
+    /** Not in
+     * @param field 只能一个非空字段的值
+     * @param values Not in的值
+     * @return
+     */
     IWhere<T> notIn(T field, Object... values);
-//    IWhere<T> notIn(IField<T> field, Object... values);
 
-    /// <summary>
-    /// Not in
-    /// </summary>
+    /**Not in
+     * @param field
+     * @param script
+     * @return
+     */
     IWhere<T> notIn(String field, Script script);
 
-    /// <summary>
-    /// 创建带小括号 SQL WHERE条件，例如 ：(field1=1)
-    /// </summary>
-    /// <returns></returns>
+    /**
+     * 创建带小括号 SQL WHERE条件，例如 ：(field1=1)
+     * @return
+     */
     IWhere<T> contains();
 
 }

@@ -5,21 +5,19 @@ public class MysqlDbProvider extends DbProvider {
 
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
+        } catch (Throwable e) {
+           System.out.println("not mysql jdbc.Driver");
         }
     }
 
-   static class MySqlBuilder  extends DbBuilder
-    {
+    static class MySqlBuilder extends DbBuilder {
         public String PrimaryKey(String name, String... fields) {
-            StringBuilder sb = new  StringBuilder();
+            StringBuilder sb = new StringBuilder();
             sb.append("ALTER TABLE ");
             sb.append(name);
             sb.append(" DROP PRIMARY KEY,ADD PRIMARY KEY (");// name);// id);")
-            for (String s : fields)
-            {
-                sb.append( s);
+            for (String s : fields) {
+                sb.append(s);
                 sb.append(',');
 
             }
@@ -29,56 +27,60 @@ public class MysqlDbProvider extends DbProvider {
         }
 
 
-        public  String AddColumn(String name, String field, String type)
-        {
+        public String AddColumn(String name, String field, String type) {
             return String.format("ALTER TABLE %s ADD %s %s ", name, field, type);
         }
 
 
-
-        public  String Boolean()
-        {
+        public String Boolean() {
             return "TINYINT";
         }
 
-        public  String Date()
-        {
+        public String Date() {
             return "DateTime";
         }
 
-        public  String DropColumn(String name, String field)
-        {
+        public String DropColumn(String name, String field) {
             return String.format("ALTER TABLE %s DROP %s", name, field);
         }
 
-        public  String Float()
-        {
+        public String Float() {
             return "FLOAT";
         }
 
-        public  String Guid()
-        {
+        @Override
+        public Boolean Check(String name, ISqler sqler) {
+
+
+            int m = (int)(sqler.executeScalar("select count(*) from information_schema.tables where table_name = {0}", name));
+            return m > 0;
+        }
+
+        public Boolean Check(String name, String field, ISqler sqler) {
+
+            int m = (int) (sqler.executeScalar("select count(*) from information_schema.columns where table_name = {0} and column_name = {1}", name, field));
+            return m > 0;
+        }
+
+
+        public String Guid() {
             return "CHAR(36)";
         }
 
-        public  String Integer()
-        {
+        public String Integer() {
             return "INTEGER";
         }
 
-        public  String Number()
-        {
+        public String Number() {
             return "decimal(16,2)";
         }
 
 
-        public  String String()
-        {
+        public String String() {
             return "VARCHAR(255)";
         }
 
-        public  String Text()
-        {
+        public String Text() {
             return "TEXT";
         }
     }

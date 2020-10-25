@@ -90,6 +90,16 @@ public class ProviderConfiguration {
 
     }
 
+    public void remove(String name) {
+        for (int i = 0; i < _config.size(); i++) {
+            Provider provider1 = _config.get(i);
+            if (provider1.name().equals(name)) {
+                _config.remove(i);
+                return;
+            }
+        }
+    }
+
     public Provider get(String name) {
         Iterator<Provider> iterator = _config.iterator();
         while (iterator.hasNext()) {
@@ -109,9 +119,7 @@ public class ProviderConfiguration {
         if (configuration.containsKey(name)) {
             return configuration.get(name);
         } else {
-            // URL path = ProviderConfiguration.class.getClassLoader().getResource("../");
             try {
-//                String filename = path.getPath() + "App_Data/UMC/" + name + ".xml";
                 File file = new File(Utility.mapPath("App_Data/UMC/" + name + ".xml"));
                 if (file.exists()) {
                     FileInputStream inputStream = new FileInputStream(file);

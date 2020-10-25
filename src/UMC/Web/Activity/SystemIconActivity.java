@@ -2,6 +2,7 @@ package UMC.Web.Activity;
 
 import UMC.Data.Utility;
 import UMC.Web.*;
+import UMC.Web.UI.UIIcon;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +17,7 @@ class SystemIconActivity extends WebActivity {
         int UserId = Utility.parse(this.asyncDialog("Icon", g ->
         {
             WebMeta form = Utility.isNull(request.sendValues(), new UMC.Web.WebMeta());
-            if (form.containsKey("limit") == false) {
+            if (!form.containsKey("limit")) {
                 this.context().send(new UISectionBuilder(request.model(), request.cmd(), new WebMeta(request.arguments()))
                         .closeEvent("UI.Event")
                         .builder(), true);
@@ -24,22 +25,27 @@ class SystemIconActivity extends WebActivity {
             UITitle uTitle = new UITitle("选择图标");
             UISection ui = UISection.create(new UIHeader().search("搜索"), uTitle);
             String Keyword = Utility.isNull(form.get("Keyword"), "");
-
-            List<UIEventText> ics = new LinkedList<>();
+            UIIcon uiIcon = new UIIcon();
             for (int i = 0; i < iconNames.length; i++) {
                 String v = iconNames[i];
                 String name = v.substring(3);
-                if (Utility.isEmpty(Keyword) == false) {
-                    if (name.indexOf(Keyword) == -1) {
+                if (!Utility.isEmpty(Keyword)) {
+                    if (!name.contains(Keyword)) {
                         continue;
                     }
                 }
-                ics.add(new UIEventText(name).icon(icons[i].charAt(0),0x111)
+                uiIcon.add(new UIEventText(name).icon(icons[i].charAt(0), 0x111)
                         .click(new UIClick(new WebMeta(request.arguments()).put(g, i)).send(request.model(), request.cmd())));
-                if (ics.size() % 4 == 0) {
-                    ui.putIcon(ics.toArray(new UIEventText[0]));
-                    ics.clear();
+                if (uiIcon.size() == 4) {
+                    ui.put(uiIcon);
+                    uiIcon = new UIIcon();
+                    //  ics.clear();
                 }
+            }
+            if (uiIcon.size() > 0) {
+                uiIcon.style().alignLeft();
+                ui.put(uiIcon);
+
             }
 
             if (ui.length() == 0) {
@@ -56,7 +62,7 @@ class SystemIconActivity extends WebActivity {
         this.context().send(new UMC.Web.WebMeta().event(key, item), true);
     }
 
-    static String[] icons = new String[]{
+    private static String[] icons = new String[]{
             "\uf000",
             "\uf001",
             "\uf002",

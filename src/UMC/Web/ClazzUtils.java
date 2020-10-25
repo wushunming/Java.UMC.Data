@@ -1,5 +1,7 @@
 package UMC.Web;
 
+import UMC.Data.Utility;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.JarURLConnection;
@@ -14,44 +16,35 @@ import java.util.jar.JarFile;
 
 class ClazzUtils {
     private static final String CLASS_SUFFIX = ".class";
-    private static final String CLASS_FILE_PREFIX = File.separator + "classes" + File.separator;
     private static final String PACKAGE_SEPARATOR = ".";
 
-    public static List<String> getClazzName(boolean showChildPackageFlag) {
+    public static List<String> getClazzName(URL url) {
         List<String> result = new ArrayList<>();
-        ClassLoader loader = Thread.currentThread().getContextClassLoader();
-        try {
-            Enumeration<URL> urls = loader.getResources("/");
-            while (urls.hasMoreElements()) {
-                URL url = urls.nextElement();
-                if (url != null) {
-                    String protocol = url.getProtocol();
-                    if ("file".equals(protocol)) {
-                        String path = url.getPath();
-                        System.out.println(path);
-                        result.addAll(getAllClassNameByFile(new File(path), showChildPackageFlag));
-                    } else if ("jar".equals(protocol)) {
-                        JarFile jarFile = null;
-                        try {
-                            jarFile = ((JarURLConnection) url.openConnection()).getJarFile();
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                        if (jarFile != null) {
-                            result.addAll(getAllClassNameByJar(jarFile, showChildPackageFlag));
-                        }
-                    }
+        int pathLength = url.getPath().length();
+        if (url != null) {
+            String protocol = url.getProtocol();
+            if ("file".equals(protocol)) {
+
+                String path = url.getPath();
+                getAllClassNameByFile(new File(path), true, pathLength, result);
+            } else if ("jar".equals(protocol)) {
+                JarFile jarFile = null;
+                try {
+                    jarFile = ((JarURLConnection) url.openConnection()).getJarFile();
+                } catch (Exception e) {
+//                    e.printStackTrace();
+                }
+                if (jarFile != null) {
+                    getAllClassNameByJar(jarFile, true, result);
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
         }
         return result;
     }
 
-    private static List<String> getAllClassNameByJar(JarFile jarFile, boolean flag) {
+    private static void getAllClassNameByJar(JarFile jarFile, boolean flag, List<String> result) {
 
-        List<String> result = new ArrayList<>();
+//        List<String> result = new ArrayList<>();
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             JarEntry jarEntry = entries.nextElement();
@@ -69,7 +62,6 @@ class ClazzUtils {
                 }
             }
         }
-        return result;
     }
 
 
@@ -81,6 +73,7 @@ class ClazzUtils {
      * @return List集合，内容为类的全名
      */
     public static List<String> getClazzName(String packageName, boolean showChildPackageFlag) {
+        int pathLength = Utility.class.getProtectionDomain().getCodeSource().getLocation().getPath().length();
         List<String> result = new ArrayList<>();
         String suffixPath = packageName.replaceAll("\\.", "/");
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
@@ -93,7 +86,7 @@ class ClazzUtils {
                     if ("file".equals(protocol)) {
                         String path = url.getPath();
                         System.out.println(path);
-                        result.addAll(getAllClassNameByFile(new File(path), showChildPackageFlag));
+                        getAllClassNameByFile(new File(path), showChildPackageFlag, pathLength, result);
                     } else if ("jar".equals(protocol)) {
                         JarFile jarFile = null;
                         try {
@@ -102,7 +95,7 @@ class ClazzUtils {
                             e.printStackTrace();
                         }
                         if (jarFile != null) {
-                            result.addAll(getAllClassNameByJar(jarFile, packageName, showChildPackageFlag));
+                            getAllClassNameByJar(jarFile, packageName, showChildPackageFlag, result);
                         }
                     }
                 }
@@ -121,37 +114,35 @@ class ClazzUtils {
      * @param flag 是否需要迭代遍历
      * @return List
      */
-    private static List<String> getAllClassNameByFile(File file, boolean flag) {
-        List<String> result = new ArrayList<>();
+    private static void getAllClassNameByFile(File file, boolean flag, int pathIndex, List<String> result) {
         if (!file.exists()) {
-            return result;
+            return;
         }
         if (file.isFile()) {
             String path = file.getPath();
             // 注意：这里替换文件分割符要用replace。因为replaceAll里面的参数是正则表达式,而windows环境中File.separator="\\"的,因此会有问题
             if (path.endsWith(CLASS_SUFFIX)) {
-                path = path.replace(CLASS_SUFFIX, "");
 
-                String clazzName = path.substring(path.indexOf(CLASS_FILE_PREFIX) + CLASS_FILE_PREFIX.length())
+                String clazzName = path.substring(pathIndex, path.length() - CLASS_SUFFIX.length())
                         .replace(File.separator, PACKAGE_SEPARATOR);
+
                 if (-1 == clazzName.indexOf("$")) {
                     result.add(clazzName);
                 }
             }
-            return result;
+            return;
 
         } else {
             File[] listFiles = file.listFiles();
             if (listFiles != null && listFiles.length > 0) {
                 for (File f : listFiles) {
                     if (flag) {
-                        result.addAll(getAllClassNameByFile(f, flag));
+                        getAllClassNameByFile(f, flag, pathIndex, result);
                     } else {
                         if (f.isFile()) {
                             String path = f.getPath();
                             if (path.endsWith(CLASS_SUFFIX)) {
-                                path = path.replace(CLASS_SUFFIX, "");
-                                String clazzName = path.substring(path.indexOf(CLASS_FILE_PREFIX) + CLASS_FILE_PREFIX.length())
+                                String clazzName = path.substring(pathIndex, path.length() - CLASS_SUFFIX.length())
                                         .replace(File.separator, PACKAGE_SEPARATOR);
                                 if (-1 == clazzName.indexOf("$")) {
                                     result.add(clazzName);
@@ -161,7 +152,6 @@ class ClazzUtils {
                     }
                 }
             }
-            return result;
         }
     }
 
@@ -174,8 +164,8 @@ class ClazzUtils {
      * @param flag        是否需要迭代遍历
      * @return List
      */
-    private static List<String> getAllClassNameByJar(JarFile jarFile, String packageName, boolean flag) {
-        List<String> result = new ArrayList<>();
+    private static void getAllClassNameByJar(JarFile jarFile, String packageName, boolean flag, List<String> result) {
+//        List<String> result = new ArrayList<>();
         Enumeration<JarEntry> entries = jarFile.entries();
         while (entries.hasMoreElements()) {
             JarEntry jarEntry = entries.nextElement();
@@ -196,7 +186,7 @@ class ClazzUtils {
                 }
             }
         }
-        return result;
+//        return result;
     }
 
 }

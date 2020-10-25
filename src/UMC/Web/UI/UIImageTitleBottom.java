@@ -16,29 +16,25 @@ public class UIImageTitleBottom extends UICell {
         return "ImageTitleBottom";
     }
 
-    public static UIImageTitleBottom create(String src) {
-        UIImageTitleBottom t = new UIImageTitleBottom(new WebMeta());
-        t.data.put("src", src);
-        return t;
+    public UIImageTitleBottom(String src) {
+        this.data = new WebMeta();
+        this.data.put("src", src);
 
     }
 
-    private UIImageTitleBottom(WebMeta data) {
+    public UIImageTitleBottom(WebMeta data) {
         this.data = data;
     }
 
-    public static UIImageTitleBottom create(WebMeta data, String src) {
-        UIImageTitleBottom t = new UIImageTitleBottom(data);
-        t.data.put("src", src);
-        return t;
-
+    public UIImageTitleBottom(WebMeta data, String src) {
+        this.data = data;
+        this.data.put("src", src);
     }
 
-    public static UIImageTitleBottom create(UIClick click, WebMeta data, String src) {
-        UIImageTitleBottom t = new UIImageTitleBottom(data);
-        t.data.put("src", src);
-        t.data.put("click", click);
-        return t;
+    public UIImageTitleBottom(UIClick click, WebMeta data, String src) {
+        this.data = data;
+        this.data.put("src", src);
+        this.data.put("click", click);
 
     }
 
